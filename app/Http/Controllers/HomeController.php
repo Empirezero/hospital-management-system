@@ -3,61 +3,64 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Corrected to use Auth facade
-use App\Models\User;
-use App\Models\Doctor;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Appointment;
+use App\Models\Doctor;
 
 class HomeController extends Controller
 {
     public function redirect()
     {
-        if (Auth::check()) { // Use Auth::check() to verify if the user is authenticated
-            switch (Auth::user()->role) {
-                case 'patient':
-                    return view('patient.home'); 
-                case 'admin':
-                    return view('admin.home'); 
-                case 'doctor':
-                    return view('doctor.home');
-                case 'pharmacist':
-                    return view('pharmacist.home');
-                case 'receptionist':
-                    return view('receptionist.home');
-                case 'accountant':
-                    return view('accountant.home');
-                case 'nurse':
-                    return view('admin.nurse');
-                case 'lab-technician':
-                    return view('lab-technician.home');
-                default:
-                    return redirect()->back(); 
-            }
-        } else {
-            return redirect()->back();
+        if (!Auth::check()) {
+            return redirect()->route('login');
         }
 
+        $user = Auth::user();
+
+        return match ($user->role) {
+            'admin'                   => redirect()->route('admin.home'),
+            'doctor'                  => redirect()->route('doctor.home'),
+            'patient'                 => redirect()->route('patient.home'),
+            'pharmacist'              => redirect()->route('pharmacist.home'),
+            'lab_technician'          => redirect()->route('lab.home'),
+            'receptionist'            => redirect()->route('receptionist.home'),
+            'nurse'                   => redirect()->route('nurse.home'),
+            'radiologist'             => redirect()->route('radiology.home'),
+            'physiotherapist'         => redirect()->route('physio.home'),
+            'billing_officer'         => redirect()->route('billing.home'),
+            'medical_records_officer' => redirect()->route('records.home'),
+            default                   => redirect()->route('login'),
+        };
     }
- 
+
     public function appointment(Request $request)
     {
-        $data = new Appointment;
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|max:255',
+            'date'     => 'required|date|after:today',
+            'number'   => 'required|string|max:20',
+            'message'  => 'nullable|string|max:1000',
+            'doctor'   => 'required|exists:doctors,id',
+        ]);
 
-        $data->name = $request->name;
-        $data->email = $request->email;
-        $data->date = $request->date;
-        $data->number = $request->number;
-        $data->message = $request->message;
-        $data->doctor = $request->doctor;
-        $data->status = 'pending';
-
-        if (Auth::id()) {
-            $data->user_id = Auth::user()->id;
+        $patientId = null;
+        if (Auth::check() && Auth::user()->isPatient()) {
+            $patientId = Auth::user()->patient?->id;
         }
 
-        $data->save();
+        Appointment::create([
+            'name'         => $validated['name'],
+            'email'        => $validated['email'],
+            'scheduled_at' => $validated['date'],
+            'number'       => $validated['number'],
+            'message'      => $validated['message'] ?? null,
+            'doctor_id'    => $validated['doctor'],
+            'patient_id'   => $patientId,
+            'user_id'      => Auth::id(),
+            'status'       => 'pending',
+        ]);
 
-        return redirect()->back()->with('message', 'Appointment Sent successfully. We will be in touch.');
+        return redirect()->back()->with('message', 'Appointment sent successfully. We will be in touch shortly.');
     }
-   
 }

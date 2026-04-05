@@ -1,5 +1,4 @@
 @include('pharmacist.header')
-<!-- Sidebar -->
 @include('pharmacist.sidebar')
 
 <div class="main-content">
@@ -8,7 +7,7 @@
             <h1>Add Medicine</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                <div class="breadcrumb-item"><a href="#">Forms</a></div>
+                <div class="breadcrumb-item"><a href="#">Medicine</a></div>
                 <div class="breadcrumb-item">Add Medicine</div>
             </div>
         </div>
@@ -17,59 +16,90 @@
             <h2 class="section-title">Add New Medicine</h2>
             <p class="section-lead">Fill in the details below to add a new medicine.</p>
 
-            <!-- Adjusted form container -->
             <div class="col-12 col-md-8 col-lg-8 mx-auto">
                 <div class="card">
                     <div class="card-header">
                         <h4>Medicine Details</h4>
                     </div>
                     <div class="card-body">
-                        @if(session()->has('message'))
+
+                        @if(session('message'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session()->get('message') }}
-                            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                            {{ session('message') }}
+                            <button type="button" class="close" data-dismiss="alert">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <script>
                             setTimeout(function() {
-                                document.querySelector('.alert').style.display = 'none';
-                            }, 5000); // Hide after 5 seconds
+                                var alert = document.querySelector('.alert');
+                                if (alert) alert.style.display = 'none';
+                            }, 5000);
                         </script>
+                        @endif
+
+                        @if($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
                         @endif
 
                         <form method="POST" action="{{ url('upload_medicine') }}" enctype="multipart/form-data">
                             @csrf
+
                             <div class="form-group">
                                 <label>Medicine Name</label>
-                                <input type="text" placeholder="Enter medicine name" class="form-control" name="name" required>
+                                <input type="text" name="name" class="form-control"
+                                    placeholder="Enter medicine name"
+                                    value="{{ old('name') }}" required>
                             </div>
+
                             <div class="form-group">
-                                <label>Price (in Ksh)</label>
-                                <input type="text" placeholder="Enter price" class="form-control" name="price" required>
+                                <label>Price (Ksh)</label>
+                                <input type="number" name="price" class="form-control"
+                                    placeholder="Enter price"
+                                    value="{{ old('price') }}"
+                                    step="0.01" min="0" required>
                             </div>
-                            <div class="form-group" style="display: none;">
-                                <label>Stock Quantity</label>
-                                <input type="number" placeholder="Enter stock quantity" class="form-control" name="quantity" required>
+
+                            <div class="form-group">
+                                <label>Initial Stock Quantity</label>
+                                <input type="number" name="quantity" class="form-control"
+                                    placeholder="Enter stock quantity"
+                                    value="{{ old('quantity', 0) }}"
+                                    min="0" required>
                             </div>
+
                             <div class="form-group">
                                 <label>Expiry Date</label>
-                                <input type="date" class="form-control" name="expiry_date" required>
+                                <input type="date" name="expiry_date" class="form-control"
+                                    value="{{ old('expiry_date') }}" required>
                             </div>
+
                             <div class="form-group">
-                                <label>Medicine Description</label>
-                                <textarea placeholder="Enter description (optional)" class="form-control" name="description"></textarea>
+                                <label>Medicine Description <small class="text-muted">(optional)</small></label>
+                                <textarea name="description" class="form-control"
+                                    rows="3"
+                                    placeholder="Enter description">{{ old('description') }}</textarea>
                             </div>
+
                             <div class="form-group">
-                                <label>Medicine Image</label>
-                                <input type="file" class="form-control" name="image" accept="image/*">
+                                <label>Medicine Image <small class="text-muted">(optional)</small></label>
+                                <input type="file" name="image" class="form-control-file" accept="image/*">
                             </div>
 
                             <div class="card-footer text-right">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <a href="{{ route('pharmacist.home') }}" class="btn btn-secondary mr-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-1"></i> Add Medicine
+                                </button>
                             </div>
-                        </form>
 
+                        </form>
                     </div>
                 </div>
             </div>

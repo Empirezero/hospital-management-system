@@ -4,100 +4,137 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Medicine;
+use App\Models\Prescription;
 
 class PharmacyController extends Controller
 {
+    // ─── Medicines ────────────────────────────────────────────────────
+
     public function view_medicine()
     {
         return view('pharmacist.upload_medicine');
     }
 
+    public function show_medicine()
+    {
+        $medicines = Medicine::latest()->get();
+        return view('pharmacist.show_medicine', compact('medicines'));
+    }
+
     public function upload_medicine(Request $request)
     {
-        // Validate the request
         $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'quantity' => 'required|integer',
-            'expiry_date' => 'required|date',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'name'        => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
+            'quantity'    => 'required|integer|min:0',
+            'expiry_date' => 'required|date|after:today',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|string',
         ]);
 
-        // Create a new medicine entry
-        $medicine = new Medicine;
-        $medicine->name = $request->input('name');
-        $medicine->price = $request->input('price');
-        $medicine->stock = $request->input('quantity');
-        $medicine->expiry_date = $request->input('expiry_date');
-        $medicine->description = $request->input('description');
-
-        // Handle the image upload
+        $imagename = null;
         if ($request->hasFile('image')) {
-            $image = $request->file('image'); // Corrected to access 'image' file
+            $image     = $request->file('image');
             $imagename = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('doctorimage'), $imagename); // Corrected to use public_path
-            $medicine->image = $imagename; // Assign image name to medicine
+            $image->move(public_path('medicineimage'), $imagename);
         }
 
-        // Save the medicine record
-        $medicine->save();
+        Medicine::create([
+            'name'        => $request->name,
+            'price'       => $request->price,
+            'stock'       => $request->quantity,
+            'expiry_date' => $request->expiry_date,
+            'description' => $request->description,
+            'image'       => $imagename,
+        ]);
 
-        return redirect()->back()->with('message', 'Medicine added successfully!');
+        return redirect()->route('pharmacist.home')->with('message', 'Medicine added successfully.');
     }
 
-    public function show_medicine()
+    public function edit_medicine($id)
     {
-        $medicines = Medicine::all();
-        return view('pharmacist.show_medicine', compact('medicines'));
+        $medicine = Medicine::findOrFail($id);
+        return view('pharmacist.edit_medicine', compact('medicine'));
     }
-     public function delete_medicine($id){
-        $medicine = Medicine::find($id);
-        $medicine ->delete();
-        return redirect()-> back();
-     }
-     public function edit_medicine($id){
-        $medicine = Medicine::find($id);
-        return view('pharmacist.edit_medicine',compact('medicine'));
-     }
 
     public function update_medicine(Request $request, $id)
     {
-        // Validate the request
         $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'quantity' => 'required|integer',
+            'name'        => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
+            'quantity'    => 'required|integer|min:0',
             'expiry_date' => 'required|date',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|string',
         ]);
 
-        // Find the existing medicine entry by ID
-        $medicine = Medicine::find($id);
-        if (!$medicine) {
-            return redirect()->back()->with('error', 'Medicine not found!');
-        }
+        $medicine = Medicine::findOrFail($id);
 
-        // Update the medicine fields
-        $medicine->name = $request->input('name');
-        $medicine->price = $request->input('price');
-        $medicine->stock = $request->input('quantity');
-        $medicine->expiry_date = $request->input('expiry_date');
-        $medicine->description = $request->input('description');
-
-        // Handle the image upload if a new image is provided
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
+            $image     = $request->file('image');
             $imagename = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('doctorimage'), $imagename);
-            $medicine->image = $imagename; // Update image path in the database
+            $image->move(public_path('medicineimage'), $imagename);
+            $medicine->image = $imagename;
         }
 
-        // Save the updated medicine record
-        $medicine->save();
+        $medicine->update([
+            'name'        => $request->name,
+            'price'       => $request->price,
+            'stock'       => $request->quantity,
+            'expiry_date' => $request->expiry_date,
+            'description' => $request->description,
+        ]);
 
-        return redirect()->back()->with('message', 'Medicine updated successfully!');
+        return redirect()->route('pharmacist.medicines')->with('message', 'Medicine updated successfully.');
     }
 
+    public function delete_medicine($id)
+    {
+        Medicine::findOrFail($id)->delete();
+        return redirect()->route('pharmacist.medicines')->with('message', 'Medicine deleted successfully.');
+    }
+
+    // ─── Prescriptions ────────────────────────────────────────────────
+
+    public function pending_prescriptions()
+    {
+        $prescriptions = Prescription::where('status', 'pending')
+                            ->with(['medicine', 'doctor', 'encounter.appointment'])
+                            ->latest()
+                            ->get();
+        return view('pharmacist.prescriptions', compact('prescriptions'));
+    }
+
+    public function dispense($id)
+    {
+        $prescription = Prescription::findOrFail($id);
+
+        // Deduct stock from medicine inventory
+        $medicine = Medicine::findOrFail($prescription->medicine_id);
+        if ($medicine->stock < 1) {
+            return redirect()->back()->with('error', 'Insufficient stock for ' . $medicine->name);
+        }
+
+        $medicine->decrement('stock');
+        $prescription->update(['status' => 'dispensed']);
+
+        return redirect()->route('pharmacy.prescriptions')
+                         ->with('message', 'Prescription dispensed and stock updated.');
+    }
+
+    public function cancel_prescription($id)
+    {
+        $prescription = Prescription::findOrFail($id);
+        $prescription->update(['status' => 'cancelled']);
+        return redirect()->route('pharmacy.prescriptions')
+                         ->with('message', 'Prescription cancelled.');
+    }
+
+    public function all_prescriptions()
+    {
+        $prescriptions = Prescription::with(['medicine', 'doctor', 'encounter.appointment'])
+                            ->latest()
+                            ->get();
+        return view('pharmacist.all_prescriptions', compact('prescriptions'));
+    }
 }

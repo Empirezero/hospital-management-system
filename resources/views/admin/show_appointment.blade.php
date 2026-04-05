@@ -48,20 +48,19 @@
                                                 <td>{{ $appointment->name}}</td>
                                                 <td>{{ $appointment->number}}</td>
                                                 <td>{{ $appointment->email}}</td>
-                                                <td>{{ $appointment->doctor}}</td>
-                                                <td>{{ $appointment->date }}</td>
+                                                <td>{{ $appointment->doctor?->name ?? 'N/A' }}</td>
+                                                <td>{{ $appointment->scheduled_at ? \Carbon\Carbon::parse($appointment->scheduled_at)->format('d M Y') : 'N/A' }}</td>
                                                 <td>{{ $appointment->message }}</td>
                                                 <td>
-                                                    <div class="badge 
-                                             @if($appointment->status == 'Approved') badge-success
-                                             @elseif($appointment->status == 'Pending') badge-warning
-                                             @elseif($appointment->status == 'Canceled') badge-danger
-                                             @else 
-                                            badge-info
-                                             @endif
-                                                ">
-                                                        {{ $appointment->status }}
-                                                    </div>
+                                                    <span class="badge 
+        @if($appointment->status == 'confirmed') badge-success
+        @elseif($appointment->status == 'pending') badge-warning
+        @elseif($appointment->status == 'cancelled') badge-danger
+        @elseif($appointment->status == 'completed') badge-info
+        @elseif($appointment->status == 'no_show') badge-secondary
+        @endif">
+                                                        {{ ucfirst($appointment->status) }}
+                                                    </span>
                                                 </td>
 
                                                 <td>

@@ -33,7 +33,7 @@
                                                 <th>Patient Name</th>
                                                 <th>patient phone</th>
                                                 <th>Patient Email</th>
-                                    
+
                                                 <th>Date</th>
                                                 <th>Message</th>
                                                 <th>Status</th>
@@ -48,19 +48,18 @@
                                                 <td>{{ $appointment->name}}</td>
                                                 <td>{{ $appointment->number}}</td>
                                                 <td>{{ $appointment->email}}</td>
-                                                <td>{{ $appointment->date }}</td>
+                                                <td>{{ $appointment->scheduled_at ? \Carbon\Carbon::parse($appointment->scheduled_at)->format('d M Y') : 'N/A' }}</td>
                                                 <td>{{ $appointment->message }}</td>
                                                 <td>
-                                                    <div class="badge 
-                                             @if($appointment->status == 'Approved') badge-success
-                                             @elseif($appointment->status == 'Pending') badge-warning
-                                             @elseif($appointment->status == 'Canceled') badge-danger
-                                             @else 
-                                            badge-info
-                                             @endif
-                                                ">
-                                                        {{ $appointment->status }}
-                                                    </div>
+                                                    <span class="badge 
+        @if($appointment->status == 'confirmed') badge-success
+        @elseif($appointment->status == 'pending') badge-warning
+        @elseif($appointment->status == 'cancelled') badge-danger
+        @elseif($appointment->status == 'completed') badge-info
+        @elseif($appointment->status == 'no_show') badge-secondary
+        @endif">
+                                                        {{ ucfirst($appointment->status) }}
+                                                    </span>
                                                 </td>
 
                                                 <td>
@@ -72,6 +71,10 @@
                                                     </a>
                                                     <a href="{{url('delete_appoint',$appointment->id)}}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to Delete this appointment?')">
                                                         <i class="bi bi-trash"></i> Delete
+                                                    </a>
+                                                    <a href="{{ route('doctor.encounter.create', $appointment->id) }}"
+                                                        class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-stethoscope"></i> Start Encounter
                                                     </a>
                                                 </td>
 

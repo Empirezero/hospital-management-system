@@ -50,12 +50,19 @@
                                         @foreach($medicines as $medicine)
                                         <tr>
                                             <td>
-                                                <img src="doctorimage/{{ $medicine->image }}" style="height: 100px; width: 100px; border-radius: 50%; margin: 10px 0;">
+                                                <img src="{{ asset('medicineimage/' . $medicine->image) }}" style="height: 100px; width: 100px; border-radius: 50%; margin: 10px 0;">
                                             </td>
                                             <td>{{ $medicine->name }}</td>
                                             <td>{{ $medicine->price }}</td>
-                                            <td>{{ $medicine->stock }}</td>
-                                            <td>{{ $medicine->expiry_date }}</td>
+                                            <td>
+                                                <span class="{{ $medicine->stock < 10 ? 'text-danger font-weight-bold' : '' }}">
+                                                    {{ $medicine->stock }}
+                                                    @if($medicine->stock < 10)
+                                                        <small>(Low)</small>
+                                                        @endif
+                                                </span>
+                                            </td>
+                                            <td>{{ \Carbon\Carbon::parse($medicine->expiry_date)->format('d M Y') }}</td>
                                             <td>{{ $medicine->description }}</td>
 
                                             <td>
