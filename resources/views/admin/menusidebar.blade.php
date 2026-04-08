@@ -69,6 +69,12 @@
                     <li><a class="nav-link" href="{{ url('view_doctor') }}">View Doctors</a></li>
                 </ul>
             </li>
+            <li class="menu-header">Scheduling</li>
+            <li class="{{ request()->is('schedules*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.schedules.index') }}">
+                    <i class="fas fa-calendar-alt"></i> Doctor Schedules
+                </a>
+            </li>
 
             <li class="menu-header">Appointments</li>
             <li class="dropdown {{ request()->is('add_appointment', 'show_appointment', 'update_appoint/*') ? 'active' : '' }}">
@@ -91,7 +97,20 @@
                     <li><a class="nav-link" href="{{ route('admin.view_users') }}">View Users</a></li>
                 </ul>
             </li>
+            <li class="menu-header">Laboratory</li>
+            <li class="dropdown {{ request()->is('admin/lab*') ? 'active' : '' }}">
+                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                    <i class="fas fa-flask"></i> <span>Laboratory</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="nav-link" href="{{ route('admin.lab.index') }}">Lab Tests</a></li>
+                    <li><a class="nav-link" href="{{ route('admin.lab.requests') }}">Lab Requests</a></li>
+                </ul>
+            </li>
 
         </ul>
     </aside>
+</div>
+</ul>
+</aside>
 </div>

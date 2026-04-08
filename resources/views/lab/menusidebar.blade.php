@@ -18,7 +18,7 @@
                     class="rounded-circle mr-1"
                     style="height:35px; width:35px; object-fit:cover;">
                 @endif
-                <div class="d-sm-none d-lg-inline-block">Hi, {{ auth()->user()?->name ?? 'Doctor' }}</div>
+                <div class="d-sm-none d-lg-inline-block">Hi, {{ auth()->user()?->name ?? 'Lab Technician' }}</div>
             </a>
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-title">
@@ -45,55 +45,44 @@
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
-            <a href="{{ url('doctor_index') }}">Hospital</a>
+            <a href="{{ route('lab.queue') }}">Hospital</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-            <a href="{{ url('doctor_index') }}">H</a>
+            <a href="{{ route('lab.queue') }}">H</a>
         </div>
         <ul class="sidebar-menu">
 
             <li class="menu-header">Dashboard</li>
-            <li class="{{ request()->is('doctor_index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('doctor_index') }}">
+            <li class="{{ request()->is('lab/queue') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('lab.home') }}">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
             </li>
 
-            <li class="menu-header">Appointments</li>
-            <li class="{{ request()->is('doctor_appointment') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('doctor_appointment') }}">
-                    <i class="fas fa-calendar-check"></i> Appointments
-                </a>
-            </li>
-
-            <li class="menu-header">Clinical</li>
-            <li class="dropdown {{ request()->is('encounters', 'encounter/*') ? 'active' : '' }}">
+            <li class="menu-header">Lab Tests</li>
+            <li class="dropdown {{ request()->is('lab/queue', 'lab/upload/*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
-                    <i class="fas fa-stethoscope"></i> <span>Encounters</span>
+                    <i class="fas fa-flask"></i> <span>Test Queue</span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{{ route('doctor.encounters') }}">All Encounters</a></li>
+                    <li><a class="nav-link" href="{{ route('lab.queue') }}">
+                            Pending Tests
+                            @php
+                            $pendingCount = \App\Models\LabRequest::whereIn('status', ['requested', 'in_progress'])->count();
+                            @endphp
+                            @if($pendingCount > 0)
+                            <span class="badge badge-warning ml-1">{{ $pendingCount }}</span>
+                            @endif
+                        </a></li>
+                    <li><a class="nav-link" href="{{ route('lab.completed') }}">Completed Tests</a></li>
                 </ul>
             </li>
 
-            <li class="dropdown {{ request()->is('encounter/*/prescribe') ? 'active' : '' }}">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
-                    <i class="fas fa-prescription-bottle-alt"></i> <span>Prescriptions</span>
+            <li class="menu-header">Results</li>
+            <li class="{{ request()->is('lab/completed') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('lab.completed') }}">
+                    <i class="fas fa-check-circle"></i> All Results
                 </a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{{ route('doctor.encounters') }}">Write Prescription</a></li>
-                </ul>
-            </li>
-
-            <li class="menu-header">Laboratory</li>
-            <li class="dropdown {{ request()->is('doctor/lab*') ? 'active' : '' }}">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
-                    <i class="fas fa-flask"></i> <span>Lab Tests</span>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{{ route('doctor.lab.request') }}">Request Test</a></li>
-                    <li><a class="nav-link" href="{{ route('doctor.lab.requests') }}">My Requests</a></li>
-                </ul>
             </li>
 
         </ul>

@@ -55,7 +55,12 @@
                          <li><a class="nav-link" href="layout-top-navigation.html">Top Navigation</a></li>
                      </ul>
                  </li>
-
+                 <li class="menu-header">Laboratory</li>
+                 <li class="{{ request()->is('patient/lab/results') ? 'active' : '' }}">
+                     <a class="nav-link" href="{{ route('patient.lab.results') }}">
+                         <i class="fas fa-flask"></i> My Lab Results
+                     </a>
+                 </li>
 
              </ul>
          </aside>

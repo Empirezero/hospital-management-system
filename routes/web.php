@@ -9,6 +9,9 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PharmacyController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\ScheduleController;
+
+use App\Http\Controllers\LabController;
 
 // ─── Public Routes ────────────────────────────────────────────────
 Route::get('/', [frontendController::class, 'index'])->name('home');
@@ -54,7 +57,7 @@ Route::post('/profile/update', [AdminController::class, 'update_profile'])->name
 Route::post('/appointment', [HomeController::class, 'appointment']);
 
 // ─── Patient Routes ───────────────────────────────────────────────
-Route::get('/doctor_index', [DoctorController::class, 'index'])->name('doctor.home');
+Route::get('/patient_index', [PatientController::class, 'index'])->name('patient.home');
 Route::get('/add_appointment_view', [PatientController::class, 'addview']);
 Route::get('/my_appointment', [PatientController::class, 'my_appointment']);
 Route::get('/cancel_appoint/{id}', [PatientController::class, 'cancel_appoint']);
@@ -72,6 +75,12 @@ Route::get('/encounter/{encounter_id}/close',      [DoctorController::class, 'cl
 Route::get('/encounter/{encounter_id}/prescribe',  [DoctorController::class, 'create_prescription'])->name('doctor.prescriptions.create');
 Route::post('/encounter/{encounter_id}/prescribe', [DoctorController::class, 'store_prescription'])->name('doctor.prescriptions.store');
 
+
+// ─── Schedule Routes ──────────────────────────────────────────────
+Route::get('/schedules',                    [ScheduleController::class, 'index'])->name('admin.schedules.index');
+Route::get('/schedules/{doctor_id}',        [ScheduleController::class, 'manage'])->name('admin.schedules.manage');
+Route::post('/schedules/{doctor_id}',       [ScheduleController::class, 'save'])->name('admin.schedules.save');
+Route::get('/available-slots',              [ScheduleController::class, 'getAvailableSlots'])->name('schedules.slots');
 
 // ─── Pharmacist Routes ────────────────────────────────────────────
 Route::get('/view_medicine', [PharmacyController::class, 'view_medicine']);
@@ -94,3 +103,39 @@ Route::get('/view_inventory', [InventoryController::class, 'view_inventory']);
 Route::get('/delete_inventory/{id}', [InventoryController::class, 'delete_inventory']);
 Route::get('edit_inventory/{id}', [InventoryController::class, 'edit'])->name('inventory.edit');
 Route::post('update_inventory/{id}', [InventoryController::class, 'update'])->name('inventory.update');
+
+/// ─── Lab Routes ───────────────────────────────────────────────────────────
+
+// Admin lab overview (inside existing admin middleware group)
+Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/lab',          [LabController::class, 'admin_index'])->name('lab.index');
+    Route::get('/lab/requests', [LabController::class, 'admin_requests'])->name('lab.requests');
+});
+
+// Lab Technician
+Route::middleware('role:lab_technician')->group(function () {
+    Route::get('/lab',               [LabController::class, 'lab_home'])->name('lab.home');
+    Route::get('/lab/queue',         [LabController::class, 'lab_queue'])->name('lab.queue');
+    Route::get('/lab/completed',     [LabController::class, 'lab_completed'])->name('lab.completed');
+    Route::get('/lab/create',        [LabController::class, 'create_test'])->name('lab.create');
+    Route::post('/lab/store',        [LabController::class, 'store_test'])->name('lab.store');
+    Route::get('/lab/delete/{id}',   [LabController::class, 'delete_test'])->name('lab.delete');
+    Route::get('/lab/upload/{id}',   [LabController::class, 'upload_result'])->name('lab.upload');
+    Route::post('/lab/upload/{id}',  [LabController::class, 'store_result'])->name('lab.store_result');
+});
+
+// Doctor lab routes
+Route::middleware('role:doctor')->group(function () {
+    Route::get('/doctor/lab/request',      [LabController::class, 'request_form'])->name('doctor.lab.request');
+    Route::post('/doctor/lab/request',     [LabController::class, 'store_request'])->name('doctor.lab.store');
+    Route::get('/doctor/lab/requests',     [LabController::class, 'doctor_requests'])->name('doctor.lab.requests');
+    Route::get('/doctor/lab/release/{id}', [LabController::class, 'release_to_patient'])->name('doctor.lab.release');
+});
+
+// Patient lab routes
+Route::middleware('role:patient')->group(function () {
+    Route::get('/patient/lab/results', [LabController::class, 'patient_results'])->name('patient.lab.results');
+});
+
+// Shared result view — accessible by doctor, patient, admin, lab_technician
+Route::get('/lab/result/{id}', [LabController::class, 'view_result'])->name('lab.result');

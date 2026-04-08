@@ -1,101 +1,169 @@
 @include('patient.header')
-<!-- Sidebar -->
 @include('patient.sidebar')
 
-<!-- Main Content -->
 <div class="main-content">
     <section class="section">
         <div class="section-header">
             <h1>My Appointments</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                <div class="breadcrumb-item"><a href="#">Appointments</a></div>
                 <div class="breadcrumb-item">My Appointments</div>
             </div>
         </div>
 
         <div class="section-body">
-            <h2 class="section-title">My Appointments</h2>
-            <p class="section-lead">Below are your recent appointments.</p>
 
-            <div class="row justify-content-center">
-                <div class="col-12 col-md-8 col-lg-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Appointment List</h4>
+            @if(session('message'))
+            <div class="alert alert-success alert-dismissible fade show">
+                {{ session('message') }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            @endif
+
+            {{-- Stats Row --}}
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card card-statistic-1">
+                        <div class="card-icon bg-primary">
+                            <i class="fas fa-calendar"></i>
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive text-center">
-                                <table class="table table-bordered table-md">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Doctor Name</th>
-                                            <th>Date</th>
-                                            <th>Message</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($appoint as $index => $appointment)
-                                        <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>{{ $appointment->doctor}}</td>
-                                            <td>{{ $appointment->date }}</td>
-                                            <td>{{ $appointment->message }}</td>
-                                            <td>
-                                                <div class="badge 
-                                             @if($appointment->status == 'Completed') badge-success
-                                             @elseif($appointment->status == 'Pending') badge-warning
-                                             @elseif($appointment->status == 'Canceled') badge-danger
-                                             @else 
-                                            badge-info
-                                             @endif
-                                                ">
-                                                    {{ $appointment->status }}
-                                                </div>
-                                            </td>
-
-                                            <td>
-                                                <a href="#" class="btn btn-secondary btn-sm">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                                <!--<a href="{{url('update_appoint',$appointment->id)}}" class="btn btn-warning btn-sm">
-                                                    <i class="bi bi-pencil"></i> Update
-                                                </a>-->
-                                                <a href="{{url('cancel_appoint',$appointment->id)}}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this appointment?')">
-                                                    <i class="bi bi-trash"></i> Cancel
-                                                </a>
-                                            </td>
-
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                        <div class="card-wrap">
+                            <div class="card-header">
+                                <h4>Total</h4>
                             </div>
+                            <div class="card-body">{{ $appoint->count() }}</div>
                         </div>
-                        <div class="card-footer text-right">
-                            <nav class="d-inline-block">
-                                <ul class="pagination mb-0">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#" tabindex="-1"><i class="fas fa-chevron-left"></i></a>
-                                    </li>
-                                    <li class="page-item active"><a class="page-link" href="#">1 <span class="sr-only">(current)</span></a></li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">2</a>
-                                    </li>
-                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
-                                    </li>
-                                </ul>
-                            </nav>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-statistic-1">
+                        <div class="card-icon bg-warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header">
+                                <h4>Pending</h4>
+                            </div>
+                            <div class="card-body">{{ $appoint->where('status', 'pending')->count() }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-statistic-1">
+                        <div class="card-icon bg-success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header">
+                                <h4>Confirmed</h4>
+                            </div>
+                            <div class="card-body">{{ $appoint->where('status', 'confirmed')->count() }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-statistic-1">
+                        <div class="card-icon bg-danger">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header">
+                                <h4>Cancelled</h4>
+                            </div>
+                            <div class="card-body">{{ $appoint->where('status', 'cancelled')->count() }}</div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h4>Appointment History</h4>
+                    <div class="card-header-action">
+                        <a href="{{ url('add_appointment_view') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Book New Appointment
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Doctor</th>
+                                    <th>Speciality</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Message</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($appoint as $appointment)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if($appointment->doctor?->image)
+                                            <img src="{{ asset('doctorimage/' . $appointment->doctor->image) }}"
+                                                class="rounded-circle mr-2"
+                                                style="height:35px; width:35px; object-fit:cover;">
+                                            @else
+                                            <img src="{{ asset('assets/img/avatar/avatar-1.png') }}"
+                                                class="rounded-circle mr-2"
+                                                style="height:35px; width:35px; object-fit:cover;">
+                                            @endif
+                                            {{ $appointment->doctor?->name ?? 'N/A' }}
+                                        </div>
+                                    </td>
+                                    <td>{{ $appointment->doctor?->speciality ?? '—' }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($appointment->scheduled_at)->format('d M Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($appointment->scheduled_at)->format('g:i A') }}</td>
+                                    <td>{{ Str::limit($appointment->message, 40) ?? '—' }}</td>
+                                    <td>
+                                        <span class="badge
+                                            @if($appointment->status == 'pending')   badge-warning
+                                            @elseif($appointment->status == 'confirmed') badge-success
+                                            @elseif($appointment->status == 'completed') badge-info
+                                            @elseif($appointment->status == 'cancelled') badge-danger
+                                            @elseif($appointment->status == 'no_show')   badge-secondary
+                                            @endif">
+                                            {{ ucfirst($appointment->status) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if(in_array($appointment->status, ['pending', 'confirmed']))
+                                        <a href="{{ url('cancel_appoint', $appointment->id) }}"
+                                            class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </a>
+                                        @else
+                                        <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="8" class="text-center py-5">
+                                        <i class="fas fa-calendar-times fa-3x text-muted mb-3 d-block"></i>
+                                        <p class="text-muted">You have no appointments yet.</p>
+                                        <a href="{{ url('add_appointment_view') }}" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i> Book Your First Appointment
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 </div>
+
 @include('patient.footer')

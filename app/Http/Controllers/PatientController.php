@@ -11,14 +11,11 @@ class PatientController extends Controller
 {
     public function index()
     {
-        $patient = Auth::user()->patient;
         $doctors = Doctor::where('status', 'active')->get();
-        $appoint = $patient
-            ? Appointment::with('doctor')
-            ->where('patient_id', $patient->id)
+        $appoint = Appointment::with('doctor')
+            ->where('user_id', Auth::id())
             ->latest('scheduled_at')
-            ->get()
-            : collect();
+            ->get();
 
         return view('patient.add_appointment', compact('doctors', 'appoint'));
     }
@@ -31,22 +28,18 @@ class PatientController extends Controller
 
     public function my_appointment()
     {
-        $patient = Auth::user()->patient;
-        $appoint = $patient
-            ? Appointment::with('doctor')
-            ->where('patient_id', $patient->id)
+        $appoint = Appointment::with('doctor')
+            ->where('user_id', Auth::id())
             ->latest('scheduled_at')
-            ->get()
-            : collect();
+            ->get();
 
         return view('patient.my_appointment', compact('appoint'));
     }
 
     public function cancel_appoint($id)
     {
-        $patient     = Auth::user()->patient;
         $appointment = Appointment::where('id', $id)
-            ->where('patient_id', $patient->id)
+            ->where('user_id', Auth::id())
             ->firstOrFail();
 
         $appointment->update(['status' => 'cancelled']);
