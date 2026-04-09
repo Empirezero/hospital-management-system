@@ -18,6 +18,8 @@ class InventoryController extends Controller
     public function view_inventory()
     {
         $inventories = Inventory::with('medicine')->latest()->get();
+        $lowStock = Medicine:: where('stock', '<=', 10)->where('stock', '>', 0)->get();
+        $outOfStock = Medicine:: where('stock', '=', 0)->get();
         return view('pharmacist.view_inventory', compact('inventories'));
     }
 
@@ -98,11 +100,11 @@ class InventoryController extends Controller
     public function getStockPrice($medicine_id)
     {
         $inventory = Inventory::where('medicine_id', $medicine_id)->latest()->first();
+        $medicine  = Medicine::find($medicine_id);
 
-        if ($inventory) {
-            return response()->json(['price' => $inventory->price, 'stock' => $inventory->current_stock]);
-        }
-
-        return response()->json(['error' => 'Medicine not found'], 404);
+        return response()->json([
+            'current_stock' => $inventory ? $inventory->current_stock : ($medicine->stock ?? 0),
+            'price'         => $inventory ? $inventory->price : 0,
+        ]);
     }
-}
+    }

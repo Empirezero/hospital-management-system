@@ -108,6 +108,12 @@
                 </ul>
             </li>
 
+            <li class="menu-header">Insurance</li>
+            <li class="{{ request()->is('admin/claims*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.claims.index') }}">
+                    <i class="fas fa-file-invoice-dollar"></i> Insurance Claims
+                </a>
+            </li>
         </ul>
     </aside>
 </div>

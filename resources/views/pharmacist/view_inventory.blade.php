@@ -2,6 +2,22 @@
 <!-- Sidebar -->
 @include('pharmacist.sidebar')
 
+
+@if($outOfStock->count())
+<div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle mr-2"></i>
+    <strong>{{ $outOfStock->count() }} medicine(s) are out of stock:</strong>
+    {{ $outOfStock->pluck('name')->join(', ') }}
+</div>
+@endif
+
+@if($lowStock->count())
+<div class="alert alert-warning">
+    <i class="fas fa-exclamation-circle mr-2"></i>
+    <strong>{{ $lowStock->count() }} medicine(s) are running low:</strong>
+    {{ $lowStock->pluck('name')->join(', ') }}
+</div>
+@endif
 <!-- Main Content -->
 <div class="main-content">
     <section class="section">
@@ -14,6 +30,21 @@
         </div>
 
         <div class="section-body">
+
+            @if(session('message'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>{{ session('message') }}
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+            @endif
+
+            @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+            @endif
+
             <h2 class="section-title">Inventory List</h2>
             <p class="section-lead">Manage your inventories below.</p>
             <div class="row">
@@ -58,10 +89,10 @@
                                             <td>{{ $inventory->expiry_date }}</td>
                                             <td>{{ $inventory->medicine->description }}</td>
                                             <td>
-                                                <a href="{{ url('edit_inventory', $inventory->id) }}" class="btn btn-warning btn-sm">
+                                                <a href="{{ route('inventory.edit', $inventory->id) }}" class="btn btn-warning btn-sm">
                                                     <i class="bi bi-pencil"></i> Update
                                                 </a>
-                                                <a href="{{ url('delete_inventory', $inventory->id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this inventory item?')">
+                                                <a href="{{ route('pharmacist.inventory.destroy', $inventory->id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this inventory item?')">
                                                     <i class="bi bi-trash"></i> Delete
                                                 </a>
                                             </td>

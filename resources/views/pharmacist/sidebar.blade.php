@@ -93,16 +93,21 @@
             </li>
 
             <li class="menu-header">Sales</li>
-            <li class="dropdown {{ request()->is('view_sales', 'add_sales') ? 'active' : '' }}">
+            <li class="dropdown {{ request()->routeIs('pharmacist.sales*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
                     <i class="fas fa-cash-register"></i> <span>Sales</span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{{ url('add_sales') }}">Add Sale</a></li>
-                    <li><a class="nav-link" href="{{ url('view_sales') }}">View Sales</a></li>
+                    <li><a class="nav-link" href="{{ route('pharmacist.sales.create') }}">Add Sale</a></li>
+                    <li><a class="nav-link" href="{{ route('pharmacist.sales') }}">View Sales</a></li>
                 </ul>
             </li>
-
+            <li class="menu-header">Insurance</li>
+            <li class="{{ request()->is('claims*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('pharmacist.claims.index') }}">
+                    <i class="fas fa-file-invoice-dollar"></i> Insurance Claims
+                </a>
+            </li>
         </ul>
     </aside>
 </div>

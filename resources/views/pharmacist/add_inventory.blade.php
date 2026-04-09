@@ -124,7 +124,7 @@
                     }
                 });
             } else {
-                $('#current_stock').val('');
+                $('#current_stock').val('0');
             }
         });
     });

@@ -66,4 +66,16 @@ class User extends Authenticatable
     {
         return $this->role === 'lab_technician';
     }
+    
+    protected static function booted(): void
+    {
+        static::created(function (User $user) {
+            if ($user->role === 'patient') {
+                \App\Models\Patient::firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['gender'  => null]
+                );
+            }
+        });
+    }
 }

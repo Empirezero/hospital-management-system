@@ -10,110 +10,131 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PharmacyController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ScheduleController;
-
 use App\Http\Controllers\LabController;
+use App\Http\Controllers\InsuranceClaimController;
 
 // ─── Public Routes ────────────────────────────────────────────────
 Route::get('/', [frontendController::class, 'index'])->name('home');
 
+// ─── All Authenticated Routes ─────────────────────────────────────
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-});
 
-// ─── Auth Redirect (role-based) ───────────────────────────────────
-Route::get('/home', [HomeController::class, 'redirect']);
+    Route::get('/dashboard', [HomeController::class, 'redirect'])->name('dashboard');
+    Route::get('/home', [HomeController::class, 'redirect']);
+    Route::post('/appointment', [HomeController::class, 'appointment']);
 
-// ─── Admin Routes ─────────────────────────────────────────────────
-Route::get('/index', [AdminController::class, 'index'])->name('admin.home');
-Route::get('/add_doctor_view', [AdminController::class, 'addview']);
-Route::post('/upload_doctor', [AdminController::class, 'upload_doctor']);
-Route::get('/show_appointment', [AdminController::class, 'show_appointment']);
-Route::get('/delete_appoint/{id}', [AdminController::class, 'delete_appoint']);
-Route::get('/update_appoint/{id}', [AdminController::class, 'update_appoint']);
-Route::post('/appointment_update/{id}', [AdminController::class, 'appointment_update']);
-Route::get('/view_doctor', [AdminController::class, 'view_doctor'])->name('admin.view_doctor');
-Route::get('/delete_doctor/{id}', [AdminController::class, 'delete_doctor']);
-Route::get('/show_doctor/{id}', [AdminController::class, 'show_doctor']);
-Route::post('/edit_doctor/{id}', [AdminController::class, 'edit_doctor']);
-Route::get('/add_appointment', [AdminController::class, 'add_appointment']);
-// ─── User Management ──────────────────────────────────────────────
-Route::get('/view_users',        [AdminController::class, 'view_users'])->name('admin.view_users');
-Route::get('/add_user',          [AdminController::class, 'add_user_view'])->name('admin.add_user');
-Route::post('/store_user',       [AdminController::class, 'store_user'])->name('admin.store_user');
-Route::get('/edit_user/{id}',    [AdminController::class, 'edit_user_view'])->name('admin.edit_user');
-Route::post('/update_user/{id}', [AdminController::class, 'update_user'])->name('admin.update_user');
-Route::get('/delete_user/{id}',  [AdminController::class, 'delete_user'])->name('admin.delete_user');
-// ─── Profile Routes ───────────────────────────────────────────────
-Route::get('/profile',         [AdminController::class, 'profile'])->name('profile');
-Route::post('/profile/update', [AdminController::class, 'update_profile'])->name('profile.update');
+    // ─── Profile ──────────────────────────────────────────────────
+    Route::get('/profile',         [AdminController::class, 'profile'])->name('profile');
+    Route::post('/profile/update', [AdminController::class, 'update_profile'])->name('profile.update');
 
-// ─── Appointment ──────────────────────────────────────────────────
-Route::post('/appointment', [HomeController::class, 'appointment']);
+    // ─── Admin Routes ─────────────────────────────────────────────
+    Route::get('/index', [AdminController::class, 'index'])->name('admin.home');
+    Route::get('/add_doctor_view', [AdminController::class, 'addview']);
+    Route::post('/upload_doctor', [AdminController::class, 'upload_doctor']);
+    Route::get('/show_appointment', [AdminController::class, 'show_appointment']);
+    Route::get('/delete_appoint/{id}', [AdminController::class, 'delete_appoint']);
+    Route::get('/update_appoint/{id}', [AdminController::class, 'update_appoint']);
+    Route::post('/appointment_update/{id}', [AdminController::class, 'appointment_update']);
+    Route::get('/view_doctor', [AdminController::class, 'view_doctor'])->name('admin.view_doctor');
+    Route::get('/delete_doctor/{id}', [AdminController::class, 'delete_doctor']);
+    Route::get('/show_doctor/{id}', [AdminController::class, 'show_doctor']);
+    Route::post('/edit_doctor/{id}', [AdminController::class, 'edit_doctor']);
+    Route::get('/add_appointment', [AdminController::class, 'add_appointment']);
 
-// ─── Patient Routes ───────────────────────────────────────────────
-Route::get('/patient_index', [PatientController::class, 'index'])->name('patient.home');
-Route::get('/add_appointment_view', [PatientController::class, 'addview']);
-Route::get('/my_appointment', [PatientController::class, 'my_appointment']);
-Route::get('/cancel_appoint/{id}', [PatientController::class, 'cancel_appoint']);
+    // User Management
+    Route::get('/view_users',        [AdminController::class, 'view_users'])->name('admin.view_users');
+    Route::get('/add_user',          [AdminController::class, 'add_user_view'])->name('admin.add_user');
+    Route::post('/store_user',       [AdminController::class, 'store_user'])->name('admin.store_user');
+    Route::get('/edit_user/{id}',    [AdminController::class, 'edit_user_view'])->name('admin.edit_user');
+    Route::post('/update_user/{id}', [AdminController::class, 'update_user'])->name('admin.update_user');
+    Route::get('/delete_user/{id}',  [AdminController::class, 'delete_user'])->name('admin.delete_user');
 
-// ─── Doctor Routes ────────────────────────────────────────────────
-Route::get('/doctor_index', [DoctorController::class, 'index'])->name('doctor.home');
-Route::get('/doctor_appointment', [DoctorController::class, 'doctor_appointment']);
-Route::get('/update/{id}', [DoctorController::class, 'update']);
-Route::post('/update_appointment/{id}', [DoctorController::class, 'update_appointment']);
-// ─── Doctor Encounter & Prescription Routes ───────────────────────
-Route::get('/encounters',                          [DoctorController::class, 'encounters'])->name('doctor.encounters');
-Route::get('/encounter/create/{appointment_id}',   [DoctorController::class, 'create_encounter'])->name('doctor.encounter.create');
-Route::post('/encounter/store',                    [DoctorController::class, 'store_encounter'])->name('doctor.encounter.store');
-Route::get('/encounter/{encounter_id}/close',      [DoctorController::class, 'close_encounter'])->name('doctor.encounter.close');
-Route::get('/encounter/{encounter_id}/prescribe',  [DoctorController::class, 'create_prescription'])->name('doctor.prescriptions.create');
-Route::post('/encounter/{encounter_id}/prescribe', [DoctorController::class, 'store_prescription'])->name('doctor.prescriptions.store');
+    // Admin Lab
+    Route::get('/admin/lab',          [LabController::class, 'admin_index'])->name('admin.lab.index');
+    Route::get('/admin/lab/requests', [LabController::class, 'admin_requests'])->name('admin.lab.requests');
 
+    // Schedules
+    Route::get('/schedules',             [ScheduleController::class, 'index'])->name('admin.schedules.index');
+    Route::get('/schedules/{doctor_id}', [ScheduleController::class, 'manage'])->name('admin.schedules.manage');
+    Route::post('/schedules/{doctor_id}', [ScheduleController::class, 'save'])->name('admin.schedules.save');
+    Route::get('/available-slots',       [ScheduleController::class, 'getAvailableSlots'])->name('schedules.slots');
 
-// ─── Schedule Routes ──────────────────────────────────────────────
-Route::get('/schedules',                    [ScheduleController::class, 'index'])->name('admin.schedules.index');
-Route::get('/schedules/{doctor_id}',        [ScheduleController::class, 'manage'])->name('admin.schedules.manage');
-Route::post('/schedules/{doctor_id}',       [ScheduleController::class, 'save'])->name('admin.schedules.save');
-Route::get('/available-slots',              [ScheduleController::class, 'getAvailableSlots'])->name('schedules.slots');
+    // ─── Patient Routes ───────────────────────────────────────────
+    Route::get('/patient_index',        [PatientController::class, 'index'])->name('patient.home');
+    Route::get('/add_appointment_view', [PatientController::class, 'addview']);
+    Route::get('/my_appointment',       [PatientController::class, 'my_appointment']);
+    Route::get('/cancel_appoint/{id}',  [PatientController::class, 'cancel_appoint']);
+    Route::get('/patient/lab/results',  [LabController::class, 'patient_results'])->name('patient.lab.results');
 
-// ─── Pharmacist Routes ────────────────────────────────────────────
-Route::get('/view_medicine', [PharmacyController::class, 'view_medicine']);
-Route::post('/upload_medicine', [PharmacyController::class, 'upload_medicine']);
-Route::get('/show_medicine', [PharmacyController::class, 'show_medicine'])->name('pharmacist.home');
-Route::get('/delete_medicine/{id}', [PharmacyController::class, 'delete_medicine']);
-Route::get('/edit_medicine/{id}', [PharmacyController::class, 'edit_medicine']);
-Route::post('/update_medicine/{id}', [PharmacyController::class, 'update_medicine']);
-// ─── Pharmacy Prescription Routes ─────────────────────────────────
-Route::get('/pharmacy/prescriptions',     [PharmacyController::class, 'pending_prescriptions'])->name('pharmacy.prescriptions');
-Route::get('/pharmacy/dispense/{id}',     [PharmacyController::class, 'dispense'])->name('pharmacy.dispense');
-Route::get('/pharmacy/cancel/{id}',       [PharmacyController::class, 'cancel_prescription'])->name('pharmacy.cancel_prescription');
-Route::get('/pharmacy/all_prescriptions', [PharmacyController::class, 'all_prescriptions'])->name('pharmacy.all_prescriptions');
+    // ─── Doctor Routes ────────────────────────────────────────────
+    Route::get('/doctor_index',              [DoctorController::class, 'index'])->name('doctor.home');
+    Route::get('/doctor_appointment',        [DoctorController::class, 'doctor_appointment']);
+    Route::get('/update/{id}',               [DoctorController::class, 'update']);
+    Route::post('/update_appointment/{id}',  [DoctorController::class, 'update_appointment']);
+    Route::get('/encounters',                [DoctorController::class, 'encounters'])->name('doctor.encounters');
+    Route::get('/encounter/create/{appointment_id}',   [DoctorController::class, 'create_encounter'])->name('doctor.encounter.create');
+    Route::post('/encounter/store',                    [DoctorController::class, 'store_encounter'])->name('doctor.encounter.store');
+    Route::get('/encounter/{encounter_id}/close',      [DoctorController::class, 'close_encounter'])->name('doctor.encounter.close');
+    Route::get('/encounter/{encounter_id}/prescribe',  [DoctorController::class, 'create_prescription'])->name('doctor.prescriptions.create');
+    Route::post('/encounter/{encounter_id}/prescribe', [DoctorController::class, 'store_prescription'])->name('doctor.prescriptions.store');
 
-// ─── Inventory Routes ─────────────────────────────────────────────
-Route::get('/Add_inventory', [InventoryController::class, 'Add_inventory']);
-Route::post('/add_inventory', [InventoryController::class, 'inventory']);
-Route::get('/inventory/stock/{medicine_id}', [InventoryController::class, 'getStockPrice']);
-Route::get('/view_inventory', [InventoryController::class, 'view_inventory']);
-Route::get('/delete_inventory/{id}', [InventoryController::class, 'delete_inventory']);
-Route::get('edit_inventory/{id}', [InventoryController::class, 'edit'])->name('inventory.edit');
-Route::post('update_inventory/{id}', [InventoryController::class, 'update'])->name('inventory.update');
+    // Doctor Lab
+    Route::get('/doctor/lab/request',      [LabController::class, 'request_form'])->name('doctor.lab.request');
+    Route::post('/doctor/lab/request',     [LabController::class, 'store_request'])->name('doctor.lab.store');
+    Route::get('/doctor/lab/requests',     [LabController::class, 'doctor_requests'])->name('doctor.lab.requests');
+    Route::get('/doctor/lab/release/{id}', [LabController::class, 'release_to_patient'])->name('doctor.lab.release');
 
-/// ─── Lab Routes ───────────────────────────────────────────────────────────
+    // ─── Pharmacist Routes ────────────────────────────────────────
+    Route::get('/view_medicine',         [PharmacyController::class, 'view_medicine']);
+    Route::post('/upload_medicine',      [PharmacyController::class, 'upload_medicine']);
+    Route::get('/show_medicine',         [PharmacyController::class, 'show_medicine'])->name('pharmacist.home');
+    Route::get('/delete_medicine/{id}',  [PharmacyController::class, 'delete_medicine']);
+    Route::get('/edit_medicine/{id}',    [PharmacyController::class, 'edit_medicine']);
+    Route::post('/update_medicine/{id}', [PharmacyController::class, 'update_medicine']);
 
-// Admin lab overview (inside existing admin middleware group)
-Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/lab',          [LabController::class, 'admin_index'])->name('lab.index');
-    Route::get('/lab/requests', [LabController::class, 'admin_requests'])->name('lab.requests');
-});
+    // Prescriptions
+    Route::get('/pharmacy/prescriptions',     [PharmacyController::class, 'pending_prescriptions'])->name('pharmacy.prescriptions');
+    Route::get('/pharmacy/dispense/{id}',     [PharmacyController::class, 'dispense'])->name('pharmacy.dispense');
+    Route::get('/pharmacy/cancel/{id}',       [PharmacyController::class, 'cancel_prescription'])->name('pharmacy.cancel_prescription');
+    Route::get('/pharmacy/all_prescriptions', [PharmacyController::class, 'all_prescriptions'])->name('pharmacy.all_prescriptions');
 
-// Lab Technician
-Route::middleware('role:lab_technician')->group(function () {
+    // Inventory
+    Route::get('/Add_inventory',                     [InventoryController::class, 'Add_inventory'])->name('pharmacist.inventory.create');
+    Route::post('/add_inventory',                    [InventoryController::class, 'inventory'])->name('pharmacist.inventory.store');
+    Route::get('/inventory/stock/{medicine_id}',     [InventoryController::class, 'getStockPrice'])->name('inventory.stock');
+    Route::get('/view_inventory',                    [InventoryController::class, 'view_inventory'])->name('pharmacist.inventory');
+    Route::get('/delete_inventory/{id}',             [InventoryController::class, 'delete_inventory'])->name('pharmacist.inventory.destroy');
+    Route::get('/edit_inventory/{id}',               [InventoryController::class, 'edit'])->name('inventory.edit');
+    Route::post('/update_inventory/{id}',            [InventoryController::class, 'update'])->name('inventory.update');
+
+    // Sales
+    Route::get('/sales',     [SalesController::class, 'view_sales'])->name('pharmacist.sales');
+    Route::get('/add_sale',  [SalesController::class, 'create'])->name('pharmacist.sales.create');
+    Route::post('/add_sale', [SalesController::class, 'add_sale'])->name('pharmacist.sales.store');
+    Route::get('/sales/{id}/edit',[SalesController::class, 'edit'])->name('pharmacist.sales.edit');
+    Route::put('/sales/{id}',   [SalesController::class, 'update'])->name('pharmacist.sales.update');
+
+    // Pharmacist claims
+    Route::middleware('role:pharmacist')->group(function () {
+        Route::get('/claims',              [InsuranceClaimController::class, 'index'])->name('pharmacist.claims.index');
+        Route::get('/claims/create',       [InsuranceClaimController::class, 'create'])->name('pharmacist.claims.create');
+        Route::post('/claims',             [InsuranceClaimController::class, 'store'])->name('pharmacist.claims.store');
+        Route::get('/claims/{id}',         [InsuranceClaimController::class, 'show'])->name('pharmacist.claims.show');
+        Route::post('/claims/{id}/submit', [InsuranceClaimController::class, 'submit'])->name('pharmacist.claims.submit');
+    });
+
+    // Admin claims
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/claims',                    [InsuranceClaimController::class, 'admin_index'])->name('claims.index');
+        Route::get('/claims/{id}',               [InsuranceClaimController::class, 'show'])->name('claims.show');
+        Route::post('/claims/{id}/update-status', [InsuranceClaimController::class, 'update_status'])->name('claims.update_status');
+    });
+
+    // ─── Lab Tech Routes ──────────────────────────────────────────
     Route::get('/lab',               [LabController::class, 'lab_home'])->name('lab.home');
     Route::get('/lab/queue',         [LabController::class, 'lab_queue'])->name('lab.queue');
     Route::get('/lab/completed',     [LabController::class, 'lab_completed'])->name('lab.completed');
@@ -122,20 +143,5 @@ Route::middleware('role:lab_technician')->group(function () {
     Route::get('/lab/delete/{id}',   [LabController::class, 'delete_test'])->name('lab.delete');
     Route::get('/lab/upload/{id}',   [LabController::class, 'upload_result'])->name('lab.upload');
     Route::post('/lab/upload/{id}',  [LabController::class, 'store_result'])->name('lab.store_result');
+    Route::get('/lab/result/{id}',   [LabController::class, 'view_result'])->name('lab.result');
 });
-
-// Doctor lab routes
-Route::middleware('role:doctor')->group(function () {
-    Route::get('/doctor/lab/request',      [LabController::class, 'request_form'])->name('doctor.lab.request');
-    Route::post('/doctor/lab/request',     [LabController::class, 'store_request'])->name('doctor.lab.store');
-    Route::get('/doctor/lab/requests',     [LabController::class, 'doctor_requests'])->name('doctor.lab.requests');
-    Route::get('/doctor/lab/release/{id}', [LabController::class, 'release_to_patient'])->name('doctor.lab.release');
-});
-
-// Patient lab routes
-Route::middleware('role:patient')->group(function () {
-    Route::get('/patient/lab/results', [LabController::class, 'patient_results'])->name('patient.lab.results');
-});
-
-// Shared result view — accessible by doctor, patient, admin, lab_technician
-Route::get('/lab/result/{id}', [LabController::class, 'view_result'])->name('lab.result');
