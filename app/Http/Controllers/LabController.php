@@ -233,6 +233,9 @@ class LabController extends Controller
             'released_at'         => Carbon::now(),
         ]);
 
+        // After $labRequest->update([...])
+        app(\App\Services\NotificationService::class)->labResultReleased($labRequest);
+      
         return redirect()->route('doctor.lab.requests')
             ->with('message', 'Result released to patient successfully.');
     }

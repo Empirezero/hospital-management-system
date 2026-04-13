@@ -53,6 +53,7 @@ class DoctorController extends Controller
             'notes'  => $request->notes,
         ]);
 
+        app(\App\Services\NotificationService::class)->appointmentStatusChanged($appointment);
         return redirect('/doctor_appointment')->with('success', 'Appointment updated successfully.');
     }
 
@@ -124,6 +125,8 @@ class DoctorController extends Controller
                 ->update(['status' => 'completed']);
         }
 
+
+        
         return redirect()->route('doctor.encounters')
             ->with('message', 'Encounter closed and appointment marked as completed.');
     }
@@ -161,7 +164,7 @@ class DoctorController extends Controller
             return redirect()->back()->with('error', 'Cannot add prescriptions to a closed encounter.');
         }
 
-        Prescription::create([
+        $prescription = Prescription::create([
             'encounter_id'  => $encounter->id,
             'medicine_id'   => $request->medicine_id,
             'patient_id'    => $encounter->patient_id ?? null,
@@ -173,6 +176,7 @@ class DoctorController extends Controller
             'status'        => 'pending',
         ]);
 
+        app(\App\Services\NotificationService::class)->prescriptionReady($prescription);
         return redirect()->route('doctor.prescriptions.create', $encounter_id)
             ->with('message', 'Medicine added to prescription.');
     }

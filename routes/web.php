@@ -12,6 +12,7 @@ use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\LabController;
 use App\Http\Controllers\InsuranceClaimController;
+use App\Http\controllers\NotificationController;
 
 // ─── Public Routes ────────────────────────────────────────────────
 Route::get('/', [frontendController::class, 'index'])->name('home');
@@ -132,6 +133,13 @@ Route::middleware([
         Route::get('/claims',                    [InsuranceClaimController::class, 'admin_index'])->name('claims.index');
         Route::get('/claims/{id}',               [InsuranceClaimController::class, 'show'])->name('claims.show');
         Route::post('/claims/{id}/update-status', [InsuranceClaimController::class, 'update_status'])->name('claims.update_status');
+    });
+
+    // Notifications
+    Route::middleware('auth')->group(function () {
+        Route::get('/notifications',              [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{id}/read',   [NotificationController::class, 'markRead'])->name('notifications.read');
+        Route::post('/notifications/read-all',    [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
     });
 
     // ─── Lab Tech Routes ──────────────────────────────────────────

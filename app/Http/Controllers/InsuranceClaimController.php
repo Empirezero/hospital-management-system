@@ -159,6 +159,9 @@ class InsuranceClaimController extends Controller
             $claim->sale->update(['payment_status' => 'pending']);
         }
 
+        // After $claim->update([...])
+        app(\App\Services\NotificationService::class)->claimStatusChanged($claim);
+
         return redirect()->route('admin.claims.index')
             ->with('message', 'Claim status updated.');
     }
