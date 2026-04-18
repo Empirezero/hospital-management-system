@@ -13,7 +13,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\LabController;
 use App\Http\Controllers\InsuranceClaimController;
 use App\Http\controllers\NotificationController;
-
+use App\Http\Controllers\ReportController;
 // ─── Public Routes ────────────────────────────────────────────────
 Route::get('/', [frontendController::class, 'index'])->name('home');
 
@@ -152,4 +152,24 @@ Route::middleware([
     Route::get('/lab/upload/{id}',   [LabController::class, 'upload_result'])->name('lab.upload');
     Route::post('/lab/upload/{id}',  [LabController::class, 'store_result'])->name('lab.store_result');
     Route::get('/lab/result/{id}',   [LabController::class, 'view_result'])->name('lab.result');
-});
+     // ─── Reporting Dashboard Routes ───────────────────────────────────
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/reports/admin', [ReportController::class, 'admin_dashboard'])->name('reports.admin');
+     });
+
+    Route::middleware(['auth', 'role:doctor'])->group(function () {
+    Route::get('/reports/doctor', [ReportController::class, 'doctor_dashboard'])->name('reports.doctor');
+   });
+
+    Route::middleware(['auth', 'role:pharmacist'])->group(function () {
+    Route::get('/reports/pharmacist', [ReportController::class, 'pharmacist_dashboard'])->name('reports.pharmacist');
+  });
+
+    Route::middleware(['auth', 'role:lab_technician'])->group(function () {
+    Route::get('/reports/lab', [ReportController::class, 'lab_dashboard'])->name('reports.lab');
+   });
+
+    Route::middleware(['auth', 'role:patient'])->group(function () {
+    Route::get('/reports/patient', [ReportController::class, 'patient_dashboard'])->name('reports.patient');
+   });
+    });

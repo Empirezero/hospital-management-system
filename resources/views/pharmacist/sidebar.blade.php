@@ -108,6 +108,12 @@
                     <i class="fas fa-file-invoice-dollar"></i> Insurance Claims
                 </a>
             </li>
+            <li class="menu-header">Reports</li>
+            <li class="{{ request()->is('reports/pharmacist') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('reports.pharmacist') }}">
+                    <i class="fas fa-chart-bar"></i> Pharmacy Reports
+                </a>
+            </li>
         </ul>
     </aside>
 </div>

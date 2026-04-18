@@ -114,6 +114,14 @@
                     <i class="fas fa-file-invoice-dollar"></i> Insurance Claims
                 </a>
             </li>
+
+
+            <li class="menu-header">Reports</li>
+            <li class="{{ request()->is('reports/admin') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('reports.admin') }}">
+                    <i class="fas fa-chart-bar"></i> Reports Dashboard
+                </a>
+            </li>
         </ul>
     </aside>
 </div>

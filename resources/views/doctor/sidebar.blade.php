@@ -115,8 +115,8 @@
         <ul class="sidebar-menu">
 
             <li class="menu-header">Dashboard</li>
-            <li class="{{ request()->is('doctor_index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('doctor_index') }}">
+            <li class="{{ request()->is('reports/doctor') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('reports.doctor') }}">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
             </li>
@@ -157,7 +157,12 @@
                     <li><a class="nav-link" href="{{ route('doctor.lab.requests') }}">My Requests</a></li>
                 </ul>
             </li>
-
+            <li class="menu-header">Reports</li>
+            <li class="{{ request()->is('reports/doctor') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('reports.doctor') }}">
+                    <i class="fas fa-chart-bar"></i> My Reports
+                </a>
+            </li>
         </ul>
     </aside>
 </div>

@@ -84,7 +84,12 @@
                     <i class="fas fa-check-circle"></i> All Results
                 </a>
             </li>
-
+            <li class="menu-header">Reports</li>
+            <li class="{{ request()->is('reports/lab') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('reports.lab') }}">
+                    <i class="fas fa-chart-bar"></i> Lab Reports
+                </a>
+            </li>
         </ul>
     </aside>
 </div>

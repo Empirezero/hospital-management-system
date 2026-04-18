@@ -112,8 +112,8 @@
         </div>
         <ul class="sidebar-menu">
             <li class="menu-header">Dashboard</li>
-            <li class="{{ request()->is('patient_index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('patient_index') }}">
+            <li class="{{ request()->is('reports/patient') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('reports.patient') }}">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
             </li>
@@ -132,7 +132,13 @@
                     <i class="fas fa-flask"></i> My Lab Results
                 </a>
             </li>
-
+            <li class="menu-header">Reports</li>
+            <li class="menu-header">Reports</li>
+            <li class="{{ request()->is('reports/patient') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('reports.patient') }}">
+                    <i class="fas fa-chart-bar"></i> My Health Summary
+                </a>
+            </li>
         </ul>
     </aside>
 </div>
