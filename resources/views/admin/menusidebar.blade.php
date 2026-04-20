@@ -114,7 +114,18 @@
                     <i class="fas fa-file-invoice-dollar"></i> Insurance Claims
                 </a>
             </li>
-
+            <li class="menu-header">Bed Management</li>
+            <li class="dropdown {{ request()->is('beds*') ? 'active' : '' }}">
+                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                    <i class="fas fa-bed"></i> <span>Beds</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="nav-link" href="{{ route('beds.overview') }}">Bed Overview</a></li>
+                    <li><a class="nav-link" href="{{ route('admin.beds.wards') }}">Manage Wards</a></li>
+                    <li><a class="nav-link" href="{{ route('admin.beds.admissions') }}">Admissions</a></li>
+                    <li><a class="nav-link" href="{{ route('admin.beds.admit') }}">Admit Patient</a></li>
+                </ul>
+            </li>
 
             <li class="menu-header">Reports</li>
             <li class="{{ request()->is('reports/admin') ? 'active' : '' }}">
@@ -122,6 +133,7 @@
                     <i class="fas fa-chart-bar"></i> Reports Dashboard
                 </a>
             </li>
+
         </ul>
     </aside>
 </div>

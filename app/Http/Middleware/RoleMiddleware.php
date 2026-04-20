@@ -7,14 +7,24 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle($request, Closure $next, $role)
+    public function handle($request, Closure $next, string ...$roles)
     {
-        // Check if the user is authenticated and has the specified role
-        if (!Auth::check() || Auth::user()->role !== $role) {
-            abort(403, 'Unauthorized action.'); // Return a 403 Forbidden response
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        // Flatten comma-separated roles e.g. 'admin,doctor,nurse'
+        $allowed = [];
+        foreach ($roles as $role) {
+            foreach (explode(',', $role) as $r) {
+                $allowed[] = trim($r);
+            }
+        }
+
+        if (!in_array(Auth::user()->role, $allowed)) {
+            abort(403, 'Unauthorized action.');
         }
 
         return $next($request);
     }
 }
-

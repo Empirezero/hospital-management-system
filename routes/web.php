@@ -14,6 +14,9 @@ use App\Http\Controllers\LabController;
 use App\Http\Controllers\InsuranceClaimController;
 use App\Http\controllers\NotificationController;
 use App\Http\Controllers\ReportController;
+
+use App\Http\Controllers\BedController;
+
 // ─── Public Routes ────────────────────────────────────────────────
 Route::get('/', [frontendController::class, 'index'])->name('home');
 
@@ -172,4 +175,25 @@ Route::middleware([
     Route::middleware(['auth', 'role:patient'])->group(function () {
     Route::get('/reports/patient', [ReportController::class, 'patient_dashboard'])->name('reports.patient');
    });
+
+
+// ─── Bed Management ───────────────────────────────────────────────
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/beds/overview',          [BedController::class, 'overview'])->name('beds.overview');
+    Route::get('/beds/wards',             [BedController::class, 'wards'])->name('admin.beds.wards');
+    Route::get('/beds/wards/create',      [BedController::class, 'create_ward'])->name('admin.beds.create_ward');
+    Route::post('/beds/wards/store',      [BedController::class, 'store_ward'])->name('admin.beds.store_ward');
+    Route::get('/beds/wards/delete/{id}', [BedController::class, 'delete_ward'])->name('admin.beds.delete_ward');
+});
+
+Route::middleware(['auth', 'role:admin,doctor,nurse'])->group(function () {
+    Route::get('/beds',                        [BedController::class, 'beds'])->name('admin.beds.index');
+    Route::get('/beds/ward/{ward_id}',         [BedController::class, 'beds'])->name('admin.beds.by_ward');
+    Route::post('/beds/status/{id}',           [BedController::class, 'update_bed_status'])->name('admin.beds.status');
+    Route::get('/beds/admissions',             [BedController::class, 'admissions'])->name('admin.beds.admissions');
+    Route::get('/beds/admit/{bed_id?}',        [BedController::class, 'admit_form'])->name('admin.beds.admit');
+    Route::post('/beds/admit',                 [BedController::class, 'store_admission'])->name('admin.beds.store_admission');
+    Route::get('/beds/discharge/{id}',         [BedController::class, 'discharge'])->name('admin.beds.discharge');
+    Route::get('/beds/admission/{id}',         [BedController::class, 'admission_detail'])->name('admin.beds.admission_detail');
+});
     });
