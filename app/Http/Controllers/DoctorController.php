@@ -119,12 +119,14 @@ class DoctorController extends Controller
             ->firstOrFail();
         $encounter->update(['status' => 'closed']);
 
-        // Mark appointment as completed
-        if ($encounter->appointment_id) {
-            Appointment::where('id', $encounter->appointment_id)
-                ->update(['status' => 'completed']);
-        }
-
+      // Mark appointment as completed
+  if ($encounter->appointment_id) {
+    $appointment = Appointment::find($encounter->appointment_id);
+    if ($appointment) {
+        $appointment->update(['status' => 'completed']);
+        app(\App\Services\NotificationService::class)->appointmentStatusChanged($appointment);
+    }
+ }
 
         
         return redirect()->route('doctor.encounters')

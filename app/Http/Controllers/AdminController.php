@@ -152,7 +152,7 @@ class AdminController extends Controller
             'message'      => $request->message,
             'status'       => $request->status,
         ]);
-
+        app(\App\Services\NotificationService::class)->appointmentStatusChanged($appointment);
         return redirect()->route('admin.appointments')->with('success', 'Appointment updated successfully.');
     }
 

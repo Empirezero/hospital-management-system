@@ -43,7 +43,7 @@ class PatientController extends Controller
             ->firstOrFail();
 
         $appointment->update(['status' => 'cancelled']);
-
+app(\App\Services\NotificationService::class)->appointmentStatusChanged($appointment);
         return redirect()->back()->with('message', 'Appointment cancelled successfully.');
     }
 }
