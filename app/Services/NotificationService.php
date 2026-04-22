@@ -11,6 +11,7 @@ use App\Notifications\AppointmentStatusChanged;
 use App\Notifications\PrescriptionReady;
 use App\Notifications\ClaimStatusChanged;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\appointmentBooked;
 
 class NotificationService
 {
@@ -89,6 +90,36 @@ class NotificationService
             $this->sms->send(
                 $phone,
                 "Hello {$user->name}, your insurance claim #{$claim->id} has been updated to {$claim->status}."
+            );
+        }
+    }
+
+    public function appointmentBooked(Appointment $appointment): void
+    {
+        // Try via user_id on doctor first, fall back to matching by name
+        $doctor = \App\Models\Doctor::find($appointment->doctor_id);
+
+        if (!$doctor) return;
+
+        $doctorUser = $doctor->user_id
+            ? \App\Models\User::find($doctor->user_id)
+            : \App\Models\User::where('role', 'doctor')
+            ->where('name', $doctor->name)
+            ->first();
+
+        if (!$doctorUser) {
+            \Illuminate\Support\Facades\Log::warning('No user found for doctor: ' . $doctor->id);
+            return;
+        }
+
+        $doctorUser->notify(new AppointmentBooked($appointment));
+
+        $doctorPhone = $doctor->number ?? null;
+        if ($doctorPhone) {
+            $this->sms->send(
+                $doctorPhone,
+                "Dr. {$doctorUser->name}, new appointment booked by {$appointment->name} on " .
+                    \Carbon\Carbon::parse($appointment->scheduled_at)->format('d M Y') . "."
             );
         }
     }

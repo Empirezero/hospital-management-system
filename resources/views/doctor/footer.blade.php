@@ -33,6 +33,17 @@
 <!-- Template JS File -->
 <script src="{{ asset('admin/assets/js/scripts.js') }}"></script>
 <script src="{{ asset('admin/assets/js/custom.js') }}"></script>
+<script>
+function markRead(id) {
+    fetch('/notifications/' + id + '/read', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        }
+    });
+}
+</script>
 </body>
 
 </html>

@@ -76,6 +76,13 @@ class User extends Authenticatable
                     ['gender'  => null]
                 );
             }
+            // Auto-link Doctor record by name
+            if ($user->role === 'doctor') {
+                \App\Models\Doctor::where('name', $user->name)
+                    ->whereNull('user_id')
+                    ->update(['user_id' => $user->id]);
+            }
         });
+        
     }
 }

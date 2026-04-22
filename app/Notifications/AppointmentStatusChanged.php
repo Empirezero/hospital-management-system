@@ -32,11 +32,18 @@ class AppointmentStatusChanged extends Notification
 
     public function toArray($notifiable): array
     {
+        $url = match ($notifiable->role) {
+            'patient' => url('/my_appointment'),
+            'doctor'  => url('/doctor_appointment'),
+            'admin'   => url('/show_appointment'),
+            default   => url('/my_appointment'),
+        };
+
         return [
             'type'    => 'appointment',
             'title'   => 'Appointment ' . ucfirst($this->appointment->status),
-            'message' => 'Your appointment on ' . $this->appointment->date . ' has been ' . $this->appointment->status . '.',
-            'url'     => url('/show_appointment'),
+            'message' => 'Your appointment on ' . \Carbon\Carbon::parse($this->appointment->scheduled_at)->format('d M Y') . ' has been ' . $this->appointment->status . '.',
+            'url'     => $url,
         ];
     }
 }

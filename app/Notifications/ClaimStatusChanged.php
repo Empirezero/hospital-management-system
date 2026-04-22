@@ -42,11 +42,17 @@ class ClaimStatusChanged extends Notification
 
     public function toArray($notifiable): array
     {
+        $url = match ($notifiable->role){
+            'admin' => url('/admin/claims/' . $this->claim->id),
+            'patient' => url('/patient/claims/' . $this->claim->id),
+            'doctor' => url('/doctor/claims/' . $this->claim->id),
+            default => url('/claims/' . $this->claim->id),
+        };
         return [
             'type'    => 'claim',
             'title'   => 'Claim #' . $this->claim->id . ' — ' . ucfirst($this->claim->status),
             'message' => 'Insurance claim status updated to ' . $this->claim->status . '.',
-            'url'     => route('admin.claims.show', $this->claim->id),
+            'url'     => $url,
         ];
     }
 }

@@ -15,10 +15,6 @@ class NotificationController extends Controller
             ->paginate(20);
 
         return view('notifications.index', compact('notifications'));
-        // ❌ Removed: Auth::user()->unreadNotifications->markAsRead();
-        // Marking as read here would wipe unread status before the view renders,
-        // preventing you from highlighting unread items in the UI.
-        // Handle marking as read via markAllRead() or markRead() instead.
     }
 
     public function markRead(Request $request, $id)

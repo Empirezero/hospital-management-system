@@ -73,7 +73,7 @@ Route::middleware([
     Route::get('/my_appointment',       [PatientController::class, 'my_appointment']);
     Route::get('/cancel_appoint/{id}',  [PatientController::class, 'cancel_appoint']);
     Route::get('/patient/lab/results',  [LabController::class, 'patient_results'])->name('patient.lab.results');
-
+    Route::get('/my_claims', [PatientController::class, 'my_claims'])->name('patient.claims');
     // ─── Doctor Routes ────────────────────────────────────────────
     Route::get('/doctor_index',              [DoctorController::class, 'index'])->name('doctor.home');
     Route::get('/doctor_appointment',        [DoctorController::class, 'doctor_appointment']);

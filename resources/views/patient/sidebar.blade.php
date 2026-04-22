@@ -139,6 +139,12 @@
                     <i class="fas fa-chart-bar"></i> My Health Summary
                 </a>
             </li>
+
+            <li class="{{ request()->is('patient/claims') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('patient.claims') }}">
+                    <i class="fas fa-file-invoice-dollar"></i> Insurance Claims
+                </a>
+            </li>
         </ul>
     </aside>
 </div>

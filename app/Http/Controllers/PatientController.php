@@ -46,4 +46,15 @@ class PatientController extends Controller
 app(\App\Services\NotificationService::class)->appointmentStatusChanged($appointment);
         return redirect()->back()->with('message', 'Appointment cancelled successfully.');
     }
+
+    public function my_claims(){
+        $patient =\App\Models\Patient:: where('user_id', Auth::id())->first();
+        $claims = $patient
+          ?\App\Models\InsuranceClaim:: with(['sale.medicine'])
+            ->where('patient_id', $patient->id)
+            ->latest()
+            ->get()
+            : collect();
+        return view('patient.claims', compact('claims'));
+    }
 }

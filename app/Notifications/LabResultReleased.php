@@ -31,6 +31,7 @@ class LabResultReleased extends Notification
 
     public function toArray($notifiable): array
     {
+        
         return [
             'type'    => 'lab_result',
             'title'   => 'Lab Result Ready',

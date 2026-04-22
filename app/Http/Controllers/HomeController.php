@@ -49,7 +49,7 @@ class HomeController extends Controller
             $patientId = Auth::user()->patient?->id;
         }
 
-        Appointment::create([
+        $appointment = Appointment::create([
             'name'         => $validated['name'],
             'email'        => $validated['email'],
             'scheduled_at' => $validated['date'],
@@ -60,7 +60,8 @@ class HomeController extends Controller
             'user_id'      => Auth::id(),
             'status'       => 'pending',
         ]);
-
+        // Notify doctor of new booking
+        app(\App\Services\NotificationService::class)->appointmentBooked($appointment);
         return redirect()->back()->with('message', 'Appointment sent successfully. We will be in touch shortly.');
     }
 }

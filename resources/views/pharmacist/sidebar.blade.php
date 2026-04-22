@@ -1,3 +1,5 @@
+@php $unread = auth()->user()?->unreadNotifications()->count()?? 0; @endphp
+
 <nav class="navbar navbar-expand-lg main-navbar">
     <form class="form-inline mr-auto">
         <ul class="navbar-nav mr-3">
@@ -5,6 +7,57 @@
         </ul>
     </form>
     <ul class="navbar-nav navbar-right">
+        <li class="dropdown notification-list">
+            <a href="#" class="nav-link dropdown-toggle nav-link-lg" data-toggle="dropdown">
+                <i class="fas fa-bell"></i>
+                @if($unread > 0)
+                <span class="badge badge-danger navbar-badge">{{ $unread }}</span>
+                @endif
+            </a>
+            <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg">
+                <div class="dropdown-header">
+                    <h6 class="mb-0">Notifications
+                        @if($unread > 0)
+                        <span class="badge badge-danger float-right">{{ $unread }}</span>
+                        @endif
+                    </h6>
+                </div>
+                <div class="dropdown-divider"></div>
+                @forelse(auth()->user()?->unreadNotifications->take(5) ?? [] as $notification)
+                <a href="{{ $notification->data['url'] ?? '#' }}" class="dropdown-item"
+                    onclick="markRead('{{ $notification->id }}')">
+                    <div class="d-flex align-items-center">
+                        <div class="mr-3">
+                            @php
+                            $icon = match($notification->data['type'] ?? '') {
+                            'lab_result' => 'fas fa-flask text-success',
+                            'appointment' => 'fas fa-calendar text-primary',
+                            'prescription' => 'fas fa-pills text-warning',
+                            'claim' => 'fas fa-file-invoice text-info',
+                            default => 'fas fa-bell text-secondary',
+                            };
+                            @endphp
+                            <i class="{{ $icon }}"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0 font-weight-bold" style="font-size:0.85rem;">
+                                {{ $notification->data['title'] }}
+                            </p>
+                            <small class="text-muted">{{ $notification->data['message'] }}</small>
+                            <br>
+                            <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                        </div>
+                    </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                @empty
+                <div class="dropdown-item text-center text-muted py-3">No new notifications</div>
+                @endforelse
+                <a href="{{ route('notifications.index') }}" class="dropdown-item text-center text-primary">
+                    View All Notifications
+                </a>
+            </div>
+        </li>
         <li class="dropdown">
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
                 @if(auth()->user()?->image)

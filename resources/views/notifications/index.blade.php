@@ -50,6 +50,7 @@ $footer = match($role) { 'admin' => 'admin.footer', 'doctor' => 'doctor.footer',
                             <p class="mb-1 text-muted">{{ $notification->data['message'] }}</p>
                             @if(!is_null($notification->data['url'] ?? null))
                             <a href="{{ $notification->data['url'] }}" class="btn btn-sm btn-outline-primary">
+                                
                                 View
                             </a>
                             @endif

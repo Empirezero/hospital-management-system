@@ -31,11 +31,16 @@ class PrescriptionReady extends Notification
 
     public function toArray($notifiable): array
     {
+        $url = match ($notifiable->role){
+    
+            'patient' => url('/patient/prescriptions'),
+            default => url('/prescriptions/' . $this->prescription->id),
+        };
         return [
             'type'    => 'prescription',
             'title'   => 'Prescription Ready',
             'message' => $this->prescription->medicine?->name . ' is ready for pickup at the pharmacy.',
-            'url'     => url('/patient/prescriptions'),
+            'url'     => $url,
         ];
     }
 }
