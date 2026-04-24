@@ -196,4 +196,6 @@ Route::middleware(['auth', 'role:admin,doctor,nurse'])->group(function () {
     Route::get('/beds/discharge/{id}',         [BedController::class, 'discharge'])->name('admin.beds.discharge');
     Route::get('/beds/admission/{id}',         [BedController::class, 'admission_detail'])->name('admin.beds.admission_detail');
 });
+
+
     });
