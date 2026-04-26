@@ -9,27 +9,26 @@ use Illuminate\Support\ServiceProvider;
 
 class BillingServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     *
-     * @return void
-     */
-    public function register()
+    public function register(): void
     {
+        $this->app->singleton(NumberGeneratorService::class, function () {
+            return new NumberGeneratorService();
+        });
+
         $this->app->singleton(BillingService::class, function ($app) {
             return new BillingService(
-                $app->make(MpesaService::class),
-                $app->make(NumberGeneratorService::class)
+                $app->make(NumberGeneratorService::class),
+            );
+        });
+
+        $this->app->singleton(MpesaService::class, function ($app) {
+            return new MpesaService(
+                $app->make(NumberGeneratorService::class),
             );
         });
     }
 
-    /**
-     * Bootstrap services.
-     *
-     * @return void
-     */
-    public function boot()
+    public function boot(): void
     {
         //
     }

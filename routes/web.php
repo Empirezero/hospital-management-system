@@ -14,7 +14,7 @@ use App\Http\Controllers\LabController;
 use App\Http\Controllers\InsuranceClaimController;
 use App\Http\controllers\NotificationController;
 use App\Http\Controllers\ReportController;
-
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BedController;
 
 // ─── Public Routes ────────────────────────────────────────────────
@@ -198,4 +198,32 @@ Route::middleware(['auth', 'role:admin,doctor,nurse'])->group(function () {
 });
 
 
+
+Route::middleware(['auth', 'verified'])->prefix('billing')->name('billing.')->group(function () {
+
+    // Bills
+    Route::get('/',                           [BillingController::class, 'index'])->name('index');
+    Route::get('/create',                     [BillingController::class, 'create'])->name('create');
+    Route::post('/',                          [BillingController::class, 'store'])->name('store');
+    Route::get('/{bill}',                     [BillingController::class, 'show'])->name('show');
+    Route::post('/{bill}/open',               [BillingController::class, 'open'])->name('open');
+    Route::post('/{bill}/discount',           [BillingController::class, 'applyDiscount'])->name('discount');
+    Route::post('/{bill}/void',               [BillingController::class, 'void'])->name('void');
+
+    // Bill items
+    Route::post('/{bill}/items/service',      [BillingController::class, 'addServiceItem'])->name('items.service');
+    Route::post('/{bill}/items/manual',       [BillingController::class, 'addManualItem'])->name('items.manual');
+    Route::delete('/{bill}/items/{item}',     [BillingController::class, 'removeItem'])->name('items.remove');
+
+    // Payments
+    Route::post('/{bill}/payments',           [BillingController::class, 'recordPayment'])->name('payments.store');
+    Route::post('/payments/{payment}/reverse', [BillingController::class, 'reversePayment'])->name('payments.reverse');
+
+    // M-Pesa
+    Route::post('/{bill}/mpesa',              [BillingController::class, 'initiateMpesa'])->name('mpesa.initiate');
+    Route::get('/mpesa/status/{transaction}', [BillingController::class, 'mpesaStatus'])->name('mpesa.status');
+
+    // Insurance
+    Route::post('/{bill}/claims',             [BillingController::class, 'createClaim'])->name('claims.store');
+});
     });

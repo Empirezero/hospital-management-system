@@ -318,7 +318,7 @@ class BillingService
             'bill_id'         => $bill->id,
             'payment_id'      => $payment->id,
             'issued_by'       => $issuedBy->id,
-            'patient_name'    => $bill->patient->full_name,
+            'patient_name'    => $bill->patient->user->name ?? $bill->patient->patient_number,
             'patient_number'  => $bill->patient->patient_number ?? null,
             'bill_number'     => $bill->bill_number,
             'payment_method'  => $payment->payment_method->label(),

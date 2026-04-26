@@ -28,6 +28,7 @@ class HomeController extends Controller
             'radiologist'             => redirect()->route('radiology.home'),
             'physiotherapist'         => redirect()->route('physio.home'),
             'billing_officer'         => redirect()->route('billing.home'),
+            'accountant'              => redirect()->route('accountant.home'),
             'medical_records_officer' => redirect()->route('records.home'),
             default                   => redirect()->route('login'),
         };
