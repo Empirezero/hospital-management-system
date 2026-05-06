@@ -16,17 +16,14 @@ class LabController extends Controller
     // ═══════════════════════════════════════════════════════════════
     // ADMIN — View only, no clinical details
     // ═══════════════════════════════════════════════════════════════
-
     public function admin_index()
     {
         $labTests     = LabTest::latest()->get();
         $totalTests   = LabRequest::count();
         $pending      = LabRequest::whereIn('status', ['requested', 'in_progress'])->count();
         $completed    = LabRequest::where('status', 'completed')->count();
-
         return view('admin.lab.index', compact('labTests', 'totalTests', 'pending', 'completed'));
     }
-
     public function admin_requests()
     {
         $requests = LabRequest::with(['labTest', 'doctor'])
@@ -34,11 +31,9 @@ class LabController extends Controller
             ->get();
         return view('admin.lab.requests', compact('requests'));
     }
-
     // ═══════════════════════════════════════════════════════════════
     // LAB TECHNICIAN — Manages tests, processes queue, uploads results
     // ═══════════════════════════════════════════════════════════════
-
     public function lab_home()
     {
         $totalTests      = LabRequest::count();
@@ -48,7 +43,6 @@ class LabController extends Controller
             ->count();
         $totalCompleted  = LabRequest::where('status', 'completed')->count();
         $labTests        = LabTest::latest()->get();
-
         return view('lab.home', compact(
             'totalTests',
             'pendingRequests',
@@ -57,12 +51,10 @@ class LabController extends Controller
             'labTests'
         ));
     }
-
     public function create_test()
     {
         return view('lab.create_test');
     }
-
     public function store_test(Request $request)
     {
         $request->validate([
@@ -71,7 +63,6 @@ class LabController extends Controller
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
         ]);
-
         LabTest::create([
             'name'        => $request->name,
             'code'        => strtoupper($request->code),
@@ -79,18 +70,15 @@ class LabController extends Controller
             'price'       => $request->price,
             'is_active'   => true,
         ]);
-
         return redirect()->route('lab.home')
             ->with('message', 'Lab test added successfully.');
     }
-
     public function delete_test($id)
     {
         LabTest::findOrFail($id)->delete();
         return redirect()->route('lab.home')
             ->with('message', 'Lab test deleted successfully.');
     }
-
     public function lab_queue()
     {
         $requests = LabRequest::with(['labTest', 'doctor'])
@@ -99,13 +87,11 @@ class LabController extends Controller
             ->get();
         return view('lab.queue', compact('requests'));
     }
-
     public function upload_result($id)
     {
         $labRequest = LabRequest::with(['labTest', 'doctor'])->findOrFail($id);
         return view('lab.upload_result', compact('labRequest'));
     }
-
     public function store_result(Request $request, $id)
     {
         $request->validate([
@@ -113,29 +99,23 @@ class LabController extends Controller
             'result_notes' => 'nullable|string',
             'status'       => 'required|in:in_progress,completed',
         ]);
-
         $labRequest  = LabRequest::findOrFail($id);
         $filename    = time() . '_' . preg_replace('/\s+/', '_', $labRequest->patient_name)
             . '.' . $request->file('result_file')->getClientOriginalExtension();
         $destination = public_path('labresults');
-
         if (!file_exists($destination)) {
             mkdir($destination, 0775, true);
         }
-
         $request->file('result_file')->move($destination, $filename);
-
         $labRequest->update([
             'result_file'  => $filename,
             'result_notes' => $request->result_notes,
             'status'       => $request->status,
             'completed_at' => $request->status === 'completed' ? Carbon::now() : null,
         ]);
-
         return redirect()->route('lab.queue')
             ->with('message', 'Result uploaded successfully.');
     }
-
     public function lab_completed()
     {
         $requests = LabRequest::with(['labTest', 'doctor'])
@@ -144,11 +124,9 @@ class LabController extends Controller
             ->get();
         return view('lab.completed', compact('requests'));
     }
-
     // ═══════════════════════════════════════════════════════════════
     // DOCTOR — Requests tests, reviews results, releases to patient
     // ═══════════════════════════════════════════════════════════════
-
     public function request_form()
     {
         $labTests     = LabTest::where('is_active', true)->get();
@@ -162,12 +140,8 @@ class LabController extends Controller
             ->with('appointment')
             ->latest()
             ->get();
-
         return view('doctor.lab.request', compact('labTests', 'appointments', 'encounters'));
     }
-
-
-
     public function store_request(Request $request)
     {
         $request->validate([
@@ -181,14 +155,15 @@ class LabController extends Controller
             'notes'          => 'nullable|string',
         ]);
 
-       
         $doctor = Doctor::where('user_id', Auth::id())->firstOrFail();
-        //get user_id from appoitment if available
+
+        // Get user_id from appointment if available
         $appointment = $request->appointment_id
-            ? \App\Models\Appointment::find($request->appointment_id)
+            ? Appointment::find($request->appointment_id)
             : null;
 
-        LabRequest::create([
+        // FIX: capture the created model so it can be passed to BillingIntegrationService
+        $labRequest = LabRequest::create([
             'lab_test_id'    => $request->lab_test_id,
             'doctor_id'      => $doctor->id,
             'user_id'        => $appointment?->user_id ?? null,
@@ -202,10 +177,11 @@ class LabController extends Controller
             'requested_at'   => Carbon::now(),
         ]);
 
+        app(\App\Services\Billing\BillingIntegrationService::class)->onLabRequestCreated($labRequest);
+
         return redirect()->route('doctor.lab.requests')
             ->with('message', 'Lab test requested successfully.');
     }
-
     public function doctor_requests()
     {
         $doctor   = Doctor::where('user_id', Auth::id())->firstOrFail();
@@ -215,40 +191,32 @@ class LabController extends Controller
             ->get();
         return view('doctor.lab.requests', compact('requests'));
     }
-
     public function release_to_patient($id)
     {
         $doctor     = Doctor::where('user_id', Auth::id())->firstOrFail();
         $labRequest = LabRequest::where('id', $id)
             ->where('doctor_id', $doctor->id)
             ->firstOrFail();
-
         if (!$labRequest->result_file) {
             return redirect()->back()
                 ->with('error', 'Cannot release — result not uploaded yet.');
         }
-
         $labRequest->update([
             'released_to_patient' => true,
             'released_at'         => Carbon::now(),
         ]);
-
-        // After $labRequest->update([...])
         app(\App\Services\NotificationService::class)->labResultReleased($labRequest);
-      
+
         return redirect()->route('doctor.lab.requests')
             ->with('message', 'Result released to patient successfully.');
     }
-
     // ═══════════════════════════════════════════════════════════════
     // SHARED — View result (role-based access)
     // ═══════════════════════════════════════════════════════════════
-
     public function view_result($id)
     {
         $labRequest = LabRequest::with(['labTest', 'doctor'])->findOrFail($id);
         $user       = Auth::user();
-
         // Patient — only if released and their own result
         if ($user->role === 'patient') {
             if (!$labRequest->released_to_patient) {
@@ -259,17 +227,13 @@ class LabController extends Controller
                 abort(403, 'Unauthorized.');
             }
         }
-
         // Admin — sees test name, cost, status only (no clinical details)
         $isAdmin = $user->role === 'admin';
-
         return view('shared.lab_result', compact('labRequest', 'isAdmin'));
     }
-
     // ═══════════════════════════════════════════════════════════════
     // PATIENT — View their released results only
     // ═══════════════════════════════════════════════════════════════
-
     public function patient_results()
     {
         $user     = Auth::user();
@@ -278,7 +242,6 @@ class LabController extends Controller
             ->where('user_id', $user->id)
             ->latest()
             ->get();
-
         return view('patient.lab_results', compact('requests'));
     }
 }

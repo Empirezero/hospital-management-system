@@ -142,7 +142,7 @@ class Bill extends Model
 
         $discountAmount = $this->discount_percent > 0
             ? round($subtotal * ($this->discount_percent / 100), 2)
-            : $this->discount_amount;
+            : ($this->discount_amount ?? 0);
 
         $insuranceCovered = $this->items()->sum('insurance_amount');
 

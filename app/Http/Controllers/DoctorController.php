@@ -106,6 +106,7 @@ class DoctorController extends Controller
             'visit_type'        => $request->visit_type,
             'status'            => 'open',
         ]);
+        app(\App\Services\Billing\BillingIntegrationService::class)->onEncounterCreated($encounter);
 
         return redirect()->route('doctor.prescriptions.create', $encounter->id)
             ->with('message', 'Encounter created. Now add prescriptions.');
@@ -177,7 +178,7 @@ class DoctorController extends Controller
             'instructions'  => $request->instructions,
             'status'        => 'pending',
         ]);
-
+        app(\App\Services\Billing\BillingIntegrationService::class)->onPrescriptionCreated($prescription);
         app(\App\Services\NotificationService::class)->prescriptionReady($prescription);
         return redirect()->route('doctor.prescriptions.create', $encounter_id)
             ->with('message', 'Medicine added to prescription.');

@@ -40,4 +40,9 @@ class Encounter extends Model
     {
         return $this->hasMany(Prescription::class);
     }
-}
+
+    public function bill(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Bill::class);
+    }
+    }
