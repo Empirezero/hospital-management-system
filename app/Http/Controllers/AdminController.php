@@ -190,6 +190,16 @@ class AdminController extends Controller
             'location'   => 'nullable|string|max:255',
             'bio'        => 'nullable|string',
             'file'       => 'nullable|image|max:2048',
+            // patient-specific
+            'phone'                    => 'required_if:role,patient|nullable|string|max:20',
+            'date_of_birth'            => 'nullable|date|before:today',
+            'gender'                   => 'nullable|in:male,female,other',
+            'blood_group'              => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'address'                  => 'nullable|string',
+            'emergency_contact_name'   => 'nullable|string|max:255',
+            'emergency_contact_phone'  => 'nullable|string|max:20',
+            'allergies'                => 'nullable|string',
+            'chronic_conditions'       => 'nullable|string',
         ]);
 
         // Handle user profile image
@@ -227,6 +237,22 @@ class AdminController extends Controller
                 'bio'        => $request->bio,
                 'image'      => $doctorImageName,
                 'status'     => 'active',
+            ]);
+        }
+
+        // Auto-create patient profile when role is patient
+        if ($request->role === 'patient') {
+            $user->refresh();
+            $user->patient->update([
+                'phone'                   => $request->phone,
+                'date_of_birth'           => $request->date_of_birth,
+                'gender'                  => $request->gender,
+                'blood_group'             => $request->blood_group,
+                'address'                 => $request->address,
+                'emergency_contact_name'  => $request->emergency_contact_name,
+                'emergency_contact_phone' => $request->emergency_contact_phone,
+                'allergies'               => $request->allergies,
+                'chronic_conditions'      => $request->chronic_conditions,
             ]);
         }
 

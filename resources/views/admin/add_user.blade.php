@@ -65,7 +65,7 @@
 
                         <div class="form-group">
                             <label>Profile Image</label>
-                            <input type="file" name="photo" class="form-control-file" accept="image/*">
+                            <input type="file" name="image" class="form-control-file" accept="image/*">
                             <small class="text-muted">Optional. Max 2MB.</small>
                         </div>
 
@@ -93,9 +93,57 @@
                                 <label>Bio</label>
                                 <textarea name="bio" class="form-control" rows="3">{{ old('bio') }}</textarea>
                             </div>
+                            
+                        </div>
+                        {{-- patients-fields div --}}
+                        <div id="patient-fields" style="display:none;">
+                            <hr>
+                            <h6 class="text-muted mb-3">Patient Profile</h6>
                             <div class="form-group">
-                                <label>Profile Image</label>
-                                <input type="file" name="file" class="form-control-file">
+                                <label>Phone Number</label>
+                                <input type="text" name="phone" class="form-control" value="{{ old('phone') }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" name="date_of_birth" class="form-control" value="{{ old('date_of_birth') }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select name="gender" class="form-control">
+                                    <option value="">-- Select --</option>
+                                    <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
+                                    <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                                    <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Blood Group</label>
+                                <select name="blood_group" class="form-control">
+                                    <option value="">-- Select --</option>
+                                    @foreach(['A+','A-','B+','B-','AB+','AB-','O+','O-'] as $bg)
+                                    <option value="{{ $bg }}" {{ old('blood_group') == $bg ? 'selected' : '' }}>{{ $bg }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Address</label>
+                                <textarea name="address" class="form-control" rows="2">{{ old('address') }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Emergency Contact Name</label>
+                                <input type="text" name="emergency_contact_name" class="form-control" value="{{ old('emergency_contact_name') }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Emergency Contact Phone</label>
+                                <input type="text" name="emergency_contact_phone" class="form-control" value="{{ old('emergency_contact_phone') }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Allergies</label>
+                                <textarea name="allergies" class="form-control" rows="2">{{ old('allergies') }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Chronic Conditions</label>
+                                <textarea name="chronic_conditions" class="form-control" rows="2">{{ old('chronic_conditions') }}</textarea>
                             </div>
                         </div>
 
@@ -119,15 +167,13 @@
 
 <script>
     document.querySelector('select[name="role"]').addEventListener('change', function() {
-        document.getElementById('doctor-fields').style.display =
-            this.value === 'doctor' ? 'block' : 'none';
+        document.getElementById('doctor-fields').style.display = this.value === 'doctor' ? 'block' : 'none';
+        document.getElementById('patient-fields').style.display = this.value === 'patient' ? 'block' : 'none';
     });
 
-    // Keep fields visible on validation error if role was doctor
     var oldRole = "{{ old('role') }}";
-    if (oldRole === 'doctor') {
-        document.getElementById('doctor-fields').style.display = 'block';
-    }
+    if (oldRole === 'doctor') document.getElementById('doctor-fields').style.display = 'block';
+    if (oldRole === 'patient') document.getElementById('patient-fields').style.display = 'block';
 </script>
 
 @include('admin.footer')

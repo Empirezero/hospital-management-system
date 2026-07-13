@@ -66,7 +66,10 @@ class User extends Authenticatable
     {
         return $this->role === 'lab_technician';
     }
-    
+    public function isReceptionist()
+    {
+        return $this->role === 'receptionist';
+    }
     protected static function booted(): void
     {
         static::created(function (User $user) {
