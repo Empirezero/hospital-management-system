@@ -66,3 +66,6 @@ class HomeController extends Controller
         return redirect()->back()->with('message', 'Appointment sent successfully. We will be in touch shortly.');
     }
 }
+
+
+

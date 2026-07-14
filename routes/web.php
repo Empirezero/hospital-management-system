@@ -16,7 +16,8 @@ use App\Http\controllers\NotificationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BedController;
-
+use App\Http\Controllers\ReceptionistController;
+use App\Http\Controllers\ProfileController;
 // ─── Public Routes ────────────────────────────────────────────────
 Route::get('/', [frontendController::class, 'index'])->name('home');
 
@@ -32,9 +33,9 @@ Route::middleware([
     Route::post('/appointment', [HomeController::class, 'appointment']);
 
     // ─── Profile ──────────────────────────────────────────────────
-    Route::get('/profile',         [AdminController::class, 'profile'])->name('profile');
-    Route::post('/profile/update', [AdminController::class, 'update_profile'])->name('profile.update');
-
+    // ─── Profile ──────────────────────────────────────────────────
+    Route::get('/profile', [ProfileController::class, 'profile'])->name('profile');
+    Route::post('/profile/update', [ProfileController::class, 'update_profile'])->name('profile.update');
     // ─── Admin Routes ─────────────────────────────────────────────
     Route::get('/index', [AdminController::class, 'index'])->name('admin.home');
     Route::get('/add_doctor_view', [AdminController::class, 'addview']);
@@ -92,8 +93,14 @@ Route::middleware([
     Route::get('/doctor/lab/requests',     [LabController::class, 'doctor_requests'])->name('doctor.lab.requests');
     Route::get('/doctor/lab/release/{id}', [LabController::class, 'release_to_patient'])->name('doctor.lab.release');
 
-    // ─── Pharmacist Routes ────────────────────────────────────────
-    Route::get('/view_medicine',         [PharmacyController::class, 'view_medicine']);
+    // ─── Receptionist Routes ─────────────────────────────────────
+    Route::get('/receptionist_index', [ReceptionistController::class, 'index'])->name('receptionist.home');
+    Route::get('/patients/add', [ReceptionistController::class, 'add_patient_view'])->name('receptionist.add_patient');
+    Route::post('/patients', [ReceptionistController::class, 'store_patient'])->name('receptionist.store_patient');
+    Route::get('/patients', [ReceptionistController::class, 'view_patients'])->name('receptionist.index');
+    Route::get('/patients/{id}', [ReceptionistController::class, 'show_patient'])->name('receptionist.show_patient');
+// ─── Pharmacist Routes ────────────────────────────────────────
+Route::get('/view_medicine',         [PharmacyController::class, 'view_medicine']);
     Route::post('/upload_medicine',      [PharmacyController::class, 'upload_medicine']);
     Route::get('/show_medicine',         [PharmacyController::class, 'show_medicine'])->name('pharmacist.home');
     Route::get('/delete_medicine/{id}',  [PharmacyController::class, 'delete_medicine']);
