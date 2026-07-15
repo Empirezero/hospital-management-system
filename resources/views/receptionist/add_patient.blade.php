@@ -29,7 +29,7 @@
                     </div>
                     @endif
 
-                    <form action="{{ route('receptionist.store_patient') }}" method="POST">
+                    <form action="{{ route('receptionist.store_patient') }}" method="POST" enctype="" multipart/form-data">
                         @csrf
 
                         <div class="form-group">
@@ -38,7 +38,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Email <small class="text-muted">(optional — leave blank for walk-ins)</small></label>
+                            <label>Email <small class="text-muted">Patients will us this to login</small></label>
                             <input type="email" name="email" class="form-control" value="{{ old('email') }}">
                         </div>
 
@@ -101,6 +101,18 @@
                         <div class="form-group">
                             <label>Chronic Conditions</label>
                             <textarea name="chronic_conditions" class="form-control" rows="2">{{ old('chronic_conditions') }}</textarea>
+                        </div>
+                        <hr>
+                        <h6 class="text-muted mb-3">Login Password</h6>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <input type="password" name="password_confirmation" class="form-control" required>
                         </div>
 
                         <button type="submit" class="btn btn-primary">Register Patient</button>

@@ -99,8 +99,11 @@ Route::middleware([
     Route::post('/patients', [ReceptionistController::class, 'store_patient'])->name('receptionist.store_patient');
     Route::get('/patients', [ReceptionistController::class, 'view_patients'])->name('receptionist.index');
     Route::get('/patients/{id}', [ReceptionistController::class, 'show_patient'])->name('receptionist.show_patient');
-// ─── Pharmacist Routes ────────────────────────────────────────
-Route::get('/view_medicine',         [PharmacyController::class, 'view_medicine']);
+    Route::get('/patients/{id}/edit', [ReceptionistController::class, 'edit_patient_view'])->name('receptionist.edit_patient');
+    Route::post('/patients/{id}/update', [ReceptionistController::class, 'update_patient'])->name('receptionist.update_patient');
+
+    // ─── Pharmacist Routes ────────────────────────────────────────
+    Route::get('/view_medicine',         [PharmacyController::class, 'view_medicine']);
     Route::post('/upload_medicine',      [PharmacyController::class, 'upload_medicine']);
     Route::get('/show_medicine',         [PharmacyController::class, 'show_medicine'])->name('pharmacist.home');
     Route::get('/delete_medicine/{id}',  [PharmacyController::class, 'delete_medicine']);
