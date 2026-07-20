@@ -19,6 +19,7 @@ class User extends Authenticatable
         'password',
         'role',
         'image',
+        'force_password_change',
     ];
 
     protected $hidden = [
@@ -31,6 +32,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'force_password_change'  => 'boolean',
     ];
 
     public function patient()

@@ -18,6 +18,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BedController;
 use App\Http\Controllers\ReceptionistController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ForcePasswordController;
 // ─── Public Routes ────────────────────────────────────────────────
 Route::get('/', [frontendController::class, 'index'])->name('home');
 
@@ -26,6 +27,7 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
+    'force.password.change',
 ])->group(function () {
 
     Route::get('/dashboard', [HomeController::class, 'redirect'])->name('dashboard');
@@ -67,6 +69,11 @@ Route::middleware([
     Route::get('/schedules/{doctor_id}', [ScheduleController::class, 'manage'])->name('admin.schedules.manage');
     Route::post('/schedules/{doctor_id}', [ScheduleController::class, 'save'])->name('admin.schedules.save');
     Route::get('/available-slots',       [ScheduleController::class, 'getAvailableSlots'])->name('schedules.slots');
+
+    // ─── Forced Password Change ──────────────────────────────────
+    Route::get('/force-password',  [ForcePasswordController::class, 'edit'])->name('password.force.edit');
+    Route::post('/force-password', [ForcePasswordController::class, 'update'])->name('password.force.update');
+
 
     // ─── Patient Routes ───────────────────────────────────────────
     Route::get('/patient_index',        [PatientController::class, 'index'])->name('patient.home');

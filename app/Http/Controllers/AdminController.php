@@ -216,6 +216,7 @@ class AdminController extends Controller
             'role'     => $request->role,
             'password' => Hash::make($request->password),
             'image'    => $userImageName,
+            'force_password_change'  => $request->role === 'patient',
         ]);
 
         // Auto-create doctor profile when role is doctor
