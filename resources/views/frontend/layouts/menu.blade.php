@@ -51,7 +51,7 @@
 
             <!-- Show Dashboard if User is Authenticated, Otherwise show Login and Register -->
             @if(Auth::check())
-            <a href="{{ url('view_doctor') }}" class="btn btn-primary rounded-pill text-white py-2 px-4">Dashboard</a>
+            <a href="{{ url('/home') }}" class="btn btn-primary rounded-pill text-white py-2 px-4">Dashboard</a>
             <a href="{{ route('logout') }}" class="btn btn-outline-primary rounded-pill text-primary py-2 px-4 me-2"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
@@ -60,8 +60,7 @@
             @else
             <a href="{{ route('login') }}" class="btn btn-outline-primary rounded-pill text-primary py-2 px-4 me-2">Login</a>
             <a href="{{ route('register') }}" class="btn btn-outline-primary rounded-pill text-primary py-2 px-4 me-2">Register</a>
-            @endif
-            <a href="#" class="btn btn-primary rounded-pill text-white py-2 px-4">Book Appointment</a>
+            @endif <a href="#" class="btn btn-primary rounded-pill text-white py-2 px-4">Book Appointment</a>
         </div>
     </nav>
 

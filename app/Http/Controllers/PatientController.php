@@ -17,7 +17,7 @@ class PatientController extends Controller
             ->latest('scheduled_at')
             ->get();
 
-        return view('patient.add_appointment', compact('doctors', 'appoint'));
+        return view('patient.home', compact('doctors', 'appoint'));
     }
 
     public function addview()
