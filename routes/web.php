@@ -19,6 +19,7 @@ use App\Http\Controllers\BedController;
 use App\Http\Controllers\ReceptionistController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ForcePasswordController;
+use App\Http\Controllers\NurseController;
 
 // ─── Public Routes ────────────────────────────────────────────────
 Route::get('/', [frontendController::class, 'index'])->name('home');
@@ -83,6 +84,7 @@ Route::middleware([
 
     // Available slots — read-only lookup used by booking forms; any authenticated role can check availability
     Route::get('/available-slots', [ScheduleController::class, 'getAvailableSlots'])->name('schedules.slots');
+    
 
     // ─── Patient Routes ───────────────────────────────────────────
     Route::middleware('role:patient')->group(function () {
@@ -94,6 +96,10 @@ Route::middleware([
         Route::get('/my_claims',            [PatientController::class, 'my_claims'])->name('patient.claims');
     });
 
+    // ─── Nurse Routes ─────────────────────────────────────────────────
+    Route::middleware('role:nurse')->group(function () {
+        Route::get('/nurse_index', [NurseController::class, 'index'])->name('nurse.home');
+    });
     // ─── Doctor Routes ────────────────────────────────────────────
     Route::middleware('role:doctor')->group(function () {
         Route::get('/doctor_index',             [DoctorController::class, 'index'])->name('doctor.home');
