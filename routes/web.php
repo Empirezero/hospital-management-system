@@ -99,6 +99,8 @@ Route::middleware([
     // ─── Nurse Routes ─────────────────────────────────────────────────
     Route::middleware('role:nurse')->group(function () {
         Route::get('/nurse_index', [NurseController::class, 'index'])->name('nurse.home');
+        Route::get('/nurse/admissions', [NurseController::class, 'admissions'])->name('nurse.admissions');
+        Route::get('/nurse/appointments', [NurseController::class, 'appointments'])->name('nurse.appointments');
     });
     // ─── Doctor Routes ────────────────────────────────────────────
     Route::middleware('role:doctor')->group(function () {

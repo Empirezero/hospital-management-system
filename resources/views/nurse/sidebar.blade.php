@@ -76,6 +76,8 @@
                     <i class="fas fa-bed"></i> Bed Overview
                 </a>
             </li>
+            <li><a class="nav-link" href="{{ route('nurse.admissions') }}"><i class="fas fa-procedures"></i> Admissions</a></li>
+            <li><a class="nav-link" href="{{ route('nurse.appointments') }}"><i class="fas fa-calendar-check"></i> Appointments</a></li>
 
             <li class="menu-header">Appointments</li>
             <li class="{{ request()->is('nurse/appointments') ? 'active' : '' }}">
