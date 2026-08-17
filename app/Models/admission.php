@@ -11,6 +11,7 @@ class Admission extends Model
         'bed_id',
         'ward_id',
         'doctor_id',
+        'admitted_by',
         'appointment_id',
         'patient_name',
         'patient_email',
@@ -54,4 +55,9 @@ class Admission extends Model
             'discharged_at' => now(),
         ]);
     }
-}
+
+    public function admittedBy()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'admitted_by');
+    }
+    }

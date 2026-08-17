@@ -50,6 +50,7 @@ $footer = $role . '.footer';
                                     <th>Ward</th>
                                     <th>Bed</th>
                                     <th>Doctor</th>
+                                    <th>Admitted By</th>
                                     <th>Admitted</th>
                                     <th>Discharged</th>
                                     <th>Duration</th>
@@ -70,6 +71,16 @@ $footer = $role . '.footer';
                                     <td>{{ $admission->ward?->name }}</td>
                                     <td>{{ $admission->bed?->bed_number }}</td>
                                     <td>Dr. {{ $admission->doctor?->name ?? 'N/A' }}</td>
+                                    <td>
+                                        @if($admission->admittedBy)
+                                        <span>{{ $admission->admittedBy->name }}</span>
+                                        <small class="text-muted d-block">
+                                            {{ ucfirst(str_replace('_', ' ', $admission->admittedBy->role)) }}
+                                        </small>
+                                        @else
+                                        <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $admission->admitted_at->format('d M Y H:i') }}</td>
                                     <td>{{ $admission->discharged_at?->format('d M Y H:i') ?? '—' }}</td>
                                     <td>

@@ -45,12 +45,14 @@ $footer = $role . '.footer';
                         <a href="{{ route('beds.by_ward', $ward->id) }}"
                             class="btn btn-sm {{ $selectedWard?->id == $ward->id ? 'btn-primary' : 'btn-outline-primary' }} mr-1">
                             {{ $ward->name }}
+                            <span class="badge badge-light ml-1">{{ $ward->beds->count() }}</span>
                         </a>
                         @endforeach
                     </div>
                 </div>
             </div>
 
+            {{-- Beds Table --}}
             <div class="card">
                 <div class="card-header">
                     <h4>Beds</h4>
@@ -101,7 +103,6 @@ $footer = $role . '.footer';
                                             <i class="fas fa-sign-out-alt"></i> Discharge
                                         </a>
                                         @endif
-                                        {{-- Status Update --}}
                                         <form action="{{ route('beds.status', $bed->id) }}"
                                             method="POST" class="d-inline ml-1">
                                             @csrf
@@ -124,6 +125,20 @@ $footer = $role . '.footer';
                         </table>
                     </div>
                 </div>
+
+                {{-- Pagination inside the card --}}
+                @if($beds->hasPages())
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Showing {{ $beds->firstItem() }} to {{ $beds->lastItem() }}
+                            of {{ $beds->total() }} beds
+                        </small>
+                        {{ $beds->links() }}
+                    </div>
+                </div>
+                @endif
+
             </div>
 
         </div>

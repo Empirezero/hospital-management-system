@@ -91,7 +91,7 @@ class BedController extends Controller
             ->when($ward_id, fn($q) => $q->where('ward_id', $ward_id))
             ->orderBy('ward_id')
             ->orderBy('bed_number')
-            ->get();
+            ->paginate(20);
 
         $selectedWard = $ward_id ? Ward::find($ward_id) : null;
 
@@ -115,7 +115,7 @@ class BedController extends Controller
 
     public function admissions()
     {
-        $admissions = Admission::with(['bed', 'ward', 'doctor'])
+        $admissions = Admission::with(['bed', 'ward', 'doctor', 'admittedBy'])
             ->latest()
             ->get();
         return view('shared.beds.admissions', compact('admissions'));
@@ -158,6 +158,7 @@ class BedController extends Controller
             'bed_id'         => $request->bed_id,
             'ward_id'        => $request->ward_id,
             'doctor_id'      => $request->doctor_id,
+            'admitted_by'    => Auth::id(),
             'appointment_id' => $request->appointment_id,
             'patient_name'   => $request->patient_name,
             'patient_email'  => $request->patient_email,
