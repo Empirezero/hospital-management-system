@@ -1,4 +1,4 @@
-@php $unread = auth()->user()?->unreadNotifications()->count()?? o; @endphp
+@php $unread = auth()->user()?->unreadNotifications()->count() ?? 0; @endphp
 
 <nav class="navbar navbar-expand-lg main-navbar">
     <form class="form-inline mr-auto">
@@ -26,7 +26,8 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 @forelse(auth()->user()?->unreadNotifications->take(5) ?? [] as $notification)
-                <a href="{{ $notification->data['url'] ?? '#' }}" class="dropdown-item"
+                <a href="{{ $notification->data['url'] ?? '#' }}"
+                    class="dropdown-item"
                     onclick="markRead('{{ $notification->id }}')">
                     <div class="d-flex align-items-center">
                         <div class="mr-3">
@@ -60,42 +61,44 @@
                 </a>
             </div>
         </li>
-        <ul class="navbar-nav navbar-right">
-            <li class="dropdown">
-                <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-                    @if(auth()->user()?->image)
-                    <img alt="{{ auth()->user()->name }}"
-                        src="{{ asset('userimage/' . auth()->user()->image) }}"
-                        class="rounded-circle mr-1"
-                        style="height:35px; width:35px; object-fit:cover;">
-                    @else
-                    <img alt="avatar"
-                        src="{{ asset('assets/img/avatar/avatar-1.png') }}"
-                        class="rounded-circle mr-1"
-                        style="height:35px; width:35px; object-fit:cover;">
-                    @endif
-                    <div class="d-sm-none d-lg-inline-block">Hi, {{ auth()->user()?->name ?? 'Guest' }}</div>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <div class="dropdown-title">
-                        {{ ucfirst(str_replace('_', ' ', auth()->user()?->role ?? '')) }}
-                    </div>
-                    <a href="{{ route('profile') }}" class="dropdown-item has-icon">
-                        <i class="far fa-user"></i> Profile
-                    </a>
-                    <a href="features-settings.html" class="dropdown-item has-icon">
-                        <i class="fas fa-cog"></i> Settings
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <form method="POST" action="{{ route('logout') }}" x-data>
-                        @csrf
-                        <button type="submit" class="dropdown-item has-icon text-danger" @click.prevent>
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </button>
-                    </form>
+
+        {{-- User Dropdown --}}
+        <li class="dropdown">
+            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+                @if(auth()->user()?->image)
+                <img alt="{{ auth()->user()->name }}"
+                    src="{{ asset('userimage/' . auth()->user()->image) }}"
+                    class="rounded-circle mr-1"
+                    style="height:35px; width:35px; object-fit:cover;">
+                @else
+                <img alt="avatar"
+                    src="{{ asset('assets/img/avatar/avatar-1.png') }}"
+                    class="rounded-circle mr-1"
+                    style="height:35px; width:35px; object-fit:cover;">
+                @endif
+                <div class="d-sm-none d-lg-inline-block">Hi, {{ auth()->user()?->name ?? 'Admin' }}</div>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-title">
+                    {{ ucfirst(str_replace('_', ' ', auth()->user()?->role ?? '')) }}
                 </div>
-            </li>
-        </ul>
+                <a href="{{ route('profile') }}" class="dropdown-item has-icon">
+                    <i class="far fa-user"></i> Profile
+                </a>
+                <a href="#" class="dropdown-item has-icon">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <div class="dropdown-divider"></div>
+                <form method="POST" action="{{ route('logout') }}" x-data>
+                    @csrf
+                    <button type="submit" class="dropdown-item has-icon text-danger" @click.prevent>
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </li>
+
+    </ul>
 </nav>
 
 <div class="main-sidebar sidebar-style-2">
@@ -108,6 +111,7 @@
         </div>
         <ul class="sidebar-menu">
 
+            {{-- Dashboard --}}
             <li class="menu-header">Dashboard</li>
             <li class="{{ request()->is('index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('index') }}">
@@ -115,6 +119,7 @@
                 </a>
             </li>
 
+            {{-- Doctors --}}
             <li class="menu-header">Doctors</li>
             <li class="dropdown {{ request()->is('add_doctor_view', 'view_doctor', 'show_doctor/*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
@@ -125,6 +130,8 @@
                     <li><a class="nav-link" href="{{ url('view_doctor') }}">View Doctors</a></li>
                 </ul>
             </li>
+
+            {{-- Scheduling --}}
             <li class="menu-header">Scheduling</li>
             <li class="{{ request()->is('schedules*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('admin.schedules.index') }}">
@@ -132,6 +139,7 @@
                 </a>
             </li>
 
+            {{-- Appointments --}}
             <li class="menu-header">Appointments</li>
             <li class="dropdown {{ request()->is('add_appointment', 'show_appointment', 'update_appoint/*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
@@ -143,6 +151,7 @@
                 </ul>
             </li>
 
+            {{-- Users --}}
             <li class="menu-header">Users</li>
             <li class="dropdown {{ request()->is('view_users', 'add_user', 'edit_user/*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
@@ -153,6 +162,8 @@
                     <li><a class="nav-link" href="{{ route('admin.view_users') }}">View Users</a></li>
                 </ul>
             </li>
+
+            {{-- Laboratory --}}
             <li class="menu-header">Laboratory</li>
             <li class="dropdown {{ request()->is('admin/lab*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
@@ -164,12 +175,15 @@
                 </ul>
             </li>
 
+            {{-- Insurance --}}
             <li class="menu-header">Insurance</li>
             <li class="{{ request()->is('admin/claims*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('admin.claims.index') }}">
                     <i class="fas fa-file-invoice-dollar"></i> Insurance Claims
                 </a>
             </li>
+
+            {{-- Bed Management --}}
             <li class="menu-header">Bed Management</li>
             <li class="dropdown {{ request()->is('beds*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
@@ -178,11 +192,12 @@
                 <ul class="dropdown-menu">
                     <li><a class="nav-link" href="{{ route('beds.overview') }}">Bed Overview</a></li>
                     <li><a class="nav-link" href="{{ route('admin.beds.wards') }}">Manage Wards</a></li>
-                    <li><a class="nav-link" href="{{ route('admin.beds.admissions') }}">Admissions</a></li>
-                    <li><a class="nav-link" href="{{ route('admin.beds.admit') }}">Admit Patient</a></li>
+                    <li><a class="nav-link" href="{{ route('beds.admissions') }}">Admissions</a></li>
+                    <li><a class="nav-link" href="{{ route('beds.admit') }}">Admit Patient</a></li>
                 </ul>
             </li>
-            @if(in_array(auth()->user()->role, ['admin', 'accountant']))
+
+            {{-- Billing --}}
             <li class="menu-header">Billing</li>
             <li class="dropdown {{ request()->is('billing*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
@@ -193,8 +208,8 @@
                     <li><a class="nav-link" href="{{ route('billing.create') }}">New Bill</a></li>
                 </ul>
             </li>
-            @endif
 
+            {{-- Reports --}}
             <li class="menu-header">Reports</li>
             <li class="{{ request()->is('reports/admin') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('reports.admin') }}">
@@ -204,9 +219,4 @@
 
         </ul>
     </aside>
-</div>
-
-
-</ul>
-</aside>
 </div>

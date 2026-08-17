@@ -54,7 +54,7 @@ class BedController extends Controller
         for ($i = 1; $i <= $request->total_beds; $i++) {
             Bed::create([
                 'ward_id'    => $ward->id,
-                'bed_number' => $ward->type[0] . strtoupper(substr($ward->type, 0, 1)) . '-' . str_pad($i, 3, '0', STR_PAD_LEFT),
+                'bed_number' => strtoupper(substr($ward->type, 0, 1)) . '-' . str_pad($i, 3, '0', STR_PAD_LEFT),
                 'status'     => 'available',
             ]);
         }
@@ -68,6 +68,16 @@ class BedController extends Controller
         Ward::findOrFail($id)->delete();
         return redirect()->route('admin.beds.wards')
             ->with('message', 'Ward deleted.');
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // HELPER — Get role-based redirect route
+    // ═══════════════════════════════════════════════════════════════
+
+    private function redirectAfterAction()
+    {
+        return redirect()->route('beds.admissions')
+            ->with('message', 'Action completed successfully.');
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -85,7 +95,7 @@ class BedController extends Controller
 
         $selectedWard = $ward_id ? Ward::find($ward_id) : null;
 
-        return view('admin.beds.beds', compact('beds', 'wards', 'selectedWard'));
+        return view('shared.beds.beds', compact('beds', 'wards', 'selectedWard'));
     }
 
     public function update_bed_status(Request $request, $id)
@@ -108,17 +118,18 @@ class BedController extends Controller
         $admissions = Admission::with(['bed', 'ward', 'doctor'])
             ->latest()
             ->get();
-        return view('admin.beds.admissions', compact('admissions'));
+        return view('shared.beds.admissions', compact('admissions'));
     }
 
     public function admit_form($bed_id = null)
     {
-        $wards       = Ward::where('is_active', true)->with('beds')->get();
-        $doctors     = Doctor::where('status', 'active')->get();
+        $wards        = Ward::where('is_active', true)->with('beds')->get();
+        $doctors      = Doctor::where('status', 'active')->get();
         $appointments = Appointment::whereIn('status', ['confirmed', 'pending'])->latest()->get();
-        $selectedBed = $bed_id ? Bed::with('ward')->find($bed_id) : null;
+        $bedId        = old('bed_id', $bed_id);
+        $selectedBed  = $bedId ? Bed::with('ward')->find($bedId) : null;
 
-        return view('admin.beds.admit', compact('wards', 'doctors', 'appointments', 'selectedBed'));
+        return view('shared.beds.admit', compact('wards', 'doctors', 'appointments', 'selectedBed'));
     }
 
     public function store_admission(Request $request)
@@ -139,6 +150,7 @@ class BedController extends Controller
 
         if ($bed->status !== 'available') {
             return redirect()->back()
+                ->withInput()
                 ->with('error', 'This bed is not available.');
         }
 
@@ -156,10 +168,9 @@ class BedController extends Controller
             'admitted_at'    => Carbon::now(),
         ]);
 
-        // Mark bed as occupied
         $bed->update(['status' => 'occupied']);
 
-        return redirect()->route('admin.beds.admissions')
+        return redirect()->route('beds.admissions')
             ->with('message', 'Patient admitted successfully.');
     }
 
@@ -177,10 +188,9 @@ class BedController extends Controller
             'discharged_at' => Carbon::now(),
         ]);
 
-        // Free the bed
         $admission->bed->update(['status' => 'available']);
 
-        return redirect()->route('admin.beds.admissions')
+        return redirect()->route('beds.admissions')
             ->with('message', 'Patient discharged successfully.');
     }
 
@@ -188,7 +198,7 @@ class BedController extends Controller
     {
         $admission = Admission::with(['bed', 'ward', 'doctor', 'appointment'])
             ->findOrFail($id);
-        return view('admin.beds.admission_detail', compact('admission'));
+        return view('shared.beds.admission_detail', compact('admission'));
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -200,14 +210,14 @@ class BedController extends Controller
         $wards = Ward::with(['beds'])->where('is_active', true)->get();
 
         $stats = [
-            'total_beds'     => Bed::count(),
-            'available'      => Bed::where('status', 'available')->count(),
-            'occupied'       => Bed::where('status', 'occupied')->count(),
-            'maintenance'    => Bed::where('status', 'maintenance')->count(),
-            'admitted_today' => Admission::whereDate('admitted_at', Carbon::today())->count(),
+            'total_beds'       => Bed::count(),
+            'available'        => Bed::where('status', 'available')->count(),
+            'occupied'         => Bed::where('status', 'occupied')->count(),
+            'maintenance'      => Bed::where('status', 'maintenance')->count(),
+            'admitted_today'   => Admission::whereDate('admitted_at', Carbon::today())->count(),
             'discharged_today' => Admission::whereDate('discharged_at', Carbon::today())->count(),
         ];
 
-        return view('admin.beds.overview', compact('wards', 'stats'));
+        return view('shared.beds.overview', compact('wards', 'stats'));
     }
 }

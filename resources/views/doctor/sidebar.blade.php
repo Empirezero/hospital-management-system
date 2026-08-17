@@ -8,9 +8,9 @@
     </form>
     <ul class="navbar-nav navbar-right">
 
+        {{-- Notifications --}}
         <li class="dropdown notification-list">
-            <a href="#" class="nav-link dropdown-toggle nav-link-lg"
-                data-toggle="dropdown">
+            <a href="#" class="nav-link dropdown-toggle nav-link-lg" data-toggle="dropdown">
                 <i class="fas fa-bell"></i>
                 @if($unread > 0)
                 <span class="badge badge-danger navbar-badge">{{ $unread }}</span>
@@ -65,6 +65,8 @@
                 </a>
             </div>
         </li>
+
+        {{-- User Dropdown --}}
         <li class="dropdown">
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
                 @if(auth()->user()?->image)
@@ -83,13 +85,11 @@
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-title">
                     {{ ucfirst(str_replace('_', ' ', auth()->user()?->role ?? '')) }}
-
-
                 </div>
                 <a href="{{ route('profile') }}" class="dropdown-item has-icon">
                     <i class="far fa-user"></i> Profile
                 </a>
-                <a href="features-settings.html" class="dropdown-item has-icon">
+                <a href="#" class="dropdown-item has-icon">
                     <i class="fas fa-cog"></i> Settings
                 </a>
                 <div class="dropdown-divider"></div>
@@ -114,13 +114,15 @@
         </div>
         <ul class="sidebar-menu">
 
+            {{-- Dashboard --}}
             <li class="menu-header">Dashboard</li>
-            <li class="{{ request()->is('reports/doctor') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('reports.doctor') }}">
+            <li class="{{ request()->is('doctor_index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('doctor_index') }}">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
             </li>
 
+            {{-- Appointments --}}
             <li class="menu-header">Appointments</li>
             <li class="{{ request()->is('doctor_appointment') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('doctor_appointment') }}">
@@ -128,6 +130,7 @@
                 </a>
             </li>
 
+            {{-- Clinical --}}
             <li class="menu-header">Clinical</li>
             <li class="dropdown {{ request()->is('encounters', 'encounter/*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
@@ -147,6 +150,7 @@
                 </ul>
             </li>
 
+            {{-- Laboratory --}}
             <li class="menu-header">Laboratory</li>
             <li class="dropdown {{ request()->is('doctor/lab*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
@@ -157,12 +161,33 @@
                     <li><a class="nav-link" href="{{ route('doctor.lab.requests') }}">My Requests</a></li>
                 </ul>
             </li>
+
+            {{-- Bed Management --}}
+            <li class="menu-header">Bed Management</li>
+            <li class="{{ request()->is('beds/overview') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('beds.overview') }}">
+                    <i class="fas fa-bed"></i> Bed Overview
+                </a>
+            </li>
+            <li class="{{ request()->is('beds/admissions') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('beds.admissions') }}">
+                    <i class="fas fa-procedures"></i> Admissions
+                </a>
+            </li>
+            <li class="{{ request()->is('beds/admit*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('beds.admit') }}">
+                    <i class="fas fa-user-plus"></i> Admit Patient
+                </a>
+            </li>
+
+            {{-- Reports --}}
             <li class="menu-header">Reports</li>
             <li class="{{ request()->is('reports/doctor') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('reports.doctor') }}">
                     <i class="fas fa-chart-bar"></i> My Reports
                 </a>
             </li>
+
         </ul>
     </aside>
 </div>

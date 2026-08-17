@@ -53,7 +53,7 @@
                                     <td>{{ $ward->name }}</td>
                                     <td>
                                         <span class="badge badge-{{
-                                            $ward->type == 'icu'       ? 'danger'  :
+                                            $ward->type == 'icu'        ? 'danger'  :
                                             ($ward->type == 'emergency' ? 'warning' :
                                             ($ward->type == 'private'   ? 'info'    : 'primary'))
                                         }}">
@@ -69,7 +69,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.beds.by_ward', $ward->id) }}"
+                                        <a href="{{ route('beds.by_ward', $ward->id) }}"
                                             class="btn btn-primary btn-sm">
                                             <i class="fas fa-bed"></i> Beds
                                         </a>

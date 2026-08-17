@@ -60,24 +60,22 @@
 
             <li class="menu-header">Patients</li>
             <li class="{{ request()->is('beds/admissions') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('nurse.admissions') }}">
-                    <i class="fas fa-procedures"></i> Current Admissions
+                <a class="nav-link" href="{{ route('beds.admissions') }}">
+                    <i class="fas fa-procedures"></i> Admissions
                 </a>
             </li>
             <li class="{{ request()->is('beds/admit*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('admin.beds.admit') }}">
+                <a class="nav-link" href="{{ route('beds.admit') }}">
                     <i class="fas fa-user-plus"></i> Admit Patient
                 </a>
             </li>
 
             <li class="menu-header">Wards & Beds</li>
-            <li class="{{ request()->is('beds*') ? 'active' : '' }}">
+            <li class="{{ request()->is('beds/overview') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('beds.overview') }}">
                     <i class="fas fa-bed"></i> Bed Overview
                 </a>
             </li>
-            <li><a class="nav-link" href="{{ route('nurse.admissions') }}"><i class="fas fa-procedures"></i> Admissions</a></li>
-            <li><a class="nav-link" href="{{ route('nurse.appointments') }}"><i class="fas fa-calendar-check"></i> Appointments</a></li>
 
             <li class="menu-header">Appointments</li>
             <li class="{{ request()->is('nurse/appointments') ? 'active' : '' }}">

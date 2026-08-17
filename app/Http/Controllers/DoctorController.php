@@ -15,12 +15,42 @@ class DoctorController extends Controller
     public function index()
     {
         $doctor = Doctor::where('user_id', Auth::id())->firstOrFail();
+
         $totalAppointments     = Appointment::where('doctor_id', $doctor->id)->count();
         $pendingAppointments   = Appointment::where('doctor_id', $doctor->id)->where('status', 'pending')->count();
         $confirmedAppointments = Appointment::where('doctor_id', $doctor->id)->where('status', 'confirmed')->count();
         $completedAppointments = Appointment::where('doctor_id', $doctor->id)->where('status', 'completed')->count();
+        $totalEncounters       = Encounter::where('doctor_id', $doctor->id)->count();
+        $openEncounters        = Encounter::where('doctor_id', $doctor->id)->where('status', 'open')->count();
+        $totalPrescriptions    = Prescription::where('doctor_id', $doctor->id)->count();
+        $todayAppointments     = Appointment::where('doctor_id', $doctor->id)
+            ->whereDate('scheduled_at', \Carbon\Carbon::today())
+            ->count();
 
-        return view('doctor.home', compact('doctor', 'totalAppointments', 'pendingAppointments', 'confirmedAppointments', 'completedAppointments'));
+        $recentAppointments    = Appointment::where('doctor_id', $doctor->id)
+            ->latest('scheduled_at')
+            ->take(5)
+            ->get();
+
+        $recentEncounters      = Encounter::where('doctor_id', $doctor->id)
+            ->with('appointment')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('doctor.home', compact(
+            'doctor',
+            'totalAppointments',
+            'pendingAppointments',
+            'confirmedAppointments',
+            'completedAppointments',
+            'totalEncounters',
+            'openEncounters',
+            'totalPrescriptions',
+            'todayAppointments',
+            'recentAppointments',
+            'recentEncounters'
+        ));
     }
 
     public function doctor_appointment()
