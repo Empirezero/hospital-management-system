@@ -14,10 +14,30 @@ class AdminController extends Controller
     public function index()
     {
         $totalDoctors        = Doctor::count();
-        $totalAppointments   = Appointment::count();
-        $pendingAppointments = Appointment::where('status', 'pending')->count();
+        $totalPatients        = \App\Models\Patient::count();
+        $totalUsers           = User::count();
+        $totalAppointments    = Appointment::count();
+        $pendingAppointments  = Appointment::where('status', 'pending')->count();
+        $appointmentsToday    = Appointment::whereDate('scheduled_at', today())->count();
+        $occupiedBeds         = \App\Models\Bed::where('status', 'occupied')->count();
+        $availableBeds        = \App\Models\Bed::where('status', 'available')->count();
 
-        return view('admin.home', compact('totalDoctors', 'totalAppointments', 'pendingAppointments'));
+        $recentAppointments = Appointment::with(['doctor', 'patient'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('admin.home', compact(
+            'totalDoctors',
+            'totalPatients',
+            'totalUsers',
+            'totalAppointments',
+            'pendingAppointments',
+            'appointmentsToday',
+            'occupiedBeds',
+            'availableBeds',
+            'recentAppointments'
+        ));
     }
 
     // ─── Doctors ─────────────────────────────────────────────────────

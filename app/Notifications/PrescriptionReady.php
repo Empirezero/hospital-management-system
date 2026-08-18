@@ -33,7 +33,7 @@ class PrescriptionReady extends Notification
     {
         $url = match ($notifiable->role){
     
-            'patient' => url('/patient/prescriptions'),
+            'patient' => route('/patient/prescriptions'),
             default => url('/prescriptions/' . $this->prescription->id),
         };
         return [

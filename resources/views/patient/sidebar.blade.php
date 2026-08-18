@@ -5,12 +5,10 @@
         <ul class="navbar-nav mr-3">
             <li><a href="#" data-toggle="sidebar" class="nav-link nav-link-lg"><i class="fas fa-bars"></i></a></li>
         </ul>
-
     </form>
     <ul class="navbar-nav navbar-right">
         <li class="dropdown notification-list">
-            <a href="#" class="nav-link dropdown-toggle nav-link-lg"
-                data-toggle="dropdown">
+            <a href="#" class="nav-link dropdown-toggle nav-link-lg" data-toggle="dropdown">
                 <i class="fas fa-bell"></i>
                 @if($unread > 0)
                 <span class="badge badge-danger navbar-badge">{{ $unread }}</span>
@@ -83,7 +81,6 @@
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-title">
                     {{ ucfirst(str_replace('_', ' ', auth()->user()?->role ?? '')) }}
-
                 </div>
                 <a href="{{ route('profile') }}" class="dropdown-item has-icon">
                     <i class="far fa-user"></i> Profile
@@ -117,22 +114,30 @@
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
             </li>
+
             <li class="menu-header">Appointment</li>
             <li class="dropdown">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-columns"></i> <span>Appointments</span></a>
                 <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{{url('add_appointment_view')}}">Book Appointment</a></li>
-                    <li><a class="nav-link" href="{{url('my_appointment')}}">View Appointments</a></li>
-
+                    <li><a class="nav-link" href="{{ url('add_appointment_view') }}">Book Appointment</a></li>
+                    <li><a class="nav-link" href="{{ url('my_appointment') }}">View Appointments</a></li>
                 </ul>
             </li>
+
+            <li class="menu-header">Prescriptions</li>
+            <li class="{{ request()->is('my_prescriptions') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('patient.prescriptions') }}">
+                    <i class="fas fa-pills"></i> My Prescriptions
+                </a>
+            </li>
+
             <li class="menu-header">Laboratory</li>
             <li class="{{ request()->is('patient/lab/results') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('patient.lab.results') }}">
                     <i class="fas fa-flask"></i> My Lab Results
                 </a>
             </li>
-            <li class="menu-header">Reports</li>
+
             <li class="menu-header">Reports</li>
             <li class="{{ request()->is('reports/patient') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('reports.patient') }}">

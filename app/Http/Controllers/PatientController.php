@@ -17,7 +17,45 @@ class PatientController extends Controller
             ->latest('scheduled_at')
             ->get();
 
-        return view('patient.home', compact('doctors', 'appoint'));
+        $patient = \App\Models\Patient::where('user_id', Auth::id())->first();
+
+        $upcomingAppointment = Appointment::with('doctor')
+            ->where('user_id', Auth::id())
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->where('scheduled_at', '>=', now())
+            ->orderBy('scheduled_at')
+            ->first();
+
+        $upcomingCount = Appointment::where('user_id', Auth::id())
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->where('scheduled_at', '>=', now())
+            ->count();
+
+        $totalVisits = $patient
+            ? \App\Models\Encounter::where('patient_id', $patient->id)->count()
+            : 0;
+
+        $activePrescriptions = $patient
+            ? \App\Models\Prescription::where('patient_id', $patient->id)
+            ->where('status', 'pending')
+            ->count()
+            : 0;
+
+        $pendingClaims = $patient
+            ? \App\Models\InsuranceClaim::where('patient_id', $patient->id)
+            ->whereIn('status', ['pending', 'submitted'])
+            ->count()
+            : 0;
+
+        return view('patient.home', compact(
+            'doctors',
+            'appoint',
+            'upcomingAppointment',
+            'upcomingCount',
+            'totalVisits',
+            'activePrescriptions',
+            'pendingClaims'
+        ));
     }
 
     public function addview()
@@ -56,5 +94,19 @@ app(\App\Services\NotificationService::class)->appointmentStatusChanged($appoint
             ->get()
             : collect();
         return view('patient.claims', compact('claims'));
+    }
+    
+    public function my_prescriptions()
+    {
+        $patient = \App\Models\Patient::where('user_id', Auth::id())->first();
+
+        $prescriptions = $patient
+            ? \App\Models\Prescription::with(['medicine', 'doctor', 'encounter'])
+            ->where('patient_id', $patient->id)
+            ->latest()
+            ->get()
+            : collect();
+
+        return view('patient.prescriptions', compact('prescriptions'));
     }
 }

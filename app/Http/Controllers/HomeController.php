@@ -37,13 +37,16 @@ class HomeController extends Controller
     public function appointment(Request $request)
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|max:255',
-            'date'     => 'required|date|after:today',
-            'number'   => 'required|string|max:20',
-            'message'  => 'nullable|string|max:1000',
-            'doctor'   => 'required|exists:doctors,id',
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|email|max:255',
+            'date'      => 'required|date|after:today',
+            'time_slot' => 'required|date_format:H:i',
+            'number'    => 'required|string|max:20',
+            'message'   => 'nullable|string|max:1000',
+            'doctor'    => 'required|exists:doctors,id',
         ]);
+
+        $scheduledAt = \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['time_slot']);
 
         $patientId = null;
         if (Auth::check() && Auth::user()->isPatient()) {
@@ -53,7 +56,7 @@ class HomeController extends Controller
         $appointment = Appointment::create([
             'name'         => $validated['name'],
             'email'        => $validated['email'],
-            'scheduled_at' => $validated['date'],
+            'scheduled_at' => $scheduledAt,
             'number'       => $validated['number'],
             'message'      => $validated['message'] ?? null,
             'doctor_id'    => $validated['doctor'],
@@ -61,7 +64,7 @@ class HomeController extends Controller
             'user_id'      => Auth::id(),
             'status'       => 'pending',
         ]);
-        // Notify doctor of new booking
+
         app(\App\Services\NotificationService::class)->appointmentBooked($appointment);
         return redirect()->back()->with('message', 'Appointment sent successfully. We will be in touch shortly.');
     }
