@@ -17,6 +17,7 @@ use App\Services\Billing\BillingService;
 use App\Services\Billing\MpesaService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class BillingController extends Controller
 {
@@ -283,6 +284,19 @@ class BillingController extends Controller
             'mpesa_receipt_number' => $transaction->mpesa_receipt_number,
             'is_complete'          => $transaction->status->isTerminal(),
             'payment_id'           => $transaction->payment_id,
+        ]);
+    }
+    public function mpesaCallback(Request $request)
+    {
+        Log::info('M-Pesa callback received', $request->all());
+
+        $this->mpesa->handleCallback($request->all());
+
+        // Safaricom expects this exact response shape regardless of outcome —
+        // returning anything else can cause Safaricom to retry the callback repeatedly.
+        return response()->json([
+            'ResultCode' => 0,
+            'ResultDesc' => 'Accepted',
         ]);
     }
 
